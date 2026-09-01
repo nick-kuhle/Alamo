@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.alamo"
        name="The Alamo"
-       version="1.0.3"
+       version="1.0.4"
        provider-name="Alamo Team">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -21,6 +21,6 @@
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
         </assets>
-        <news>v1.0.3 - Branded loading screen (no more Kodi menu flash between sections), search moved into each section, rounded thumbnails, and the focus ring now follows the active row only.</news>
+        <news>v1.0.4 - Scraper engine: config-driven site scrapers (JSON, no code), release-name parsing and matching, ResolveURL host validation, and a working Internet Archive provider.</news>
     </extension>
 </addon>

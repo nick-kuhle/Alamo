@@ -91,16 +91,33 @@ def _file_providers():
 
 def _builtin_providers():
     from . import playlist_provider
+    from . import archive_provider
     found = []
-    provider = playlist_provider.get_provider()
-    if provider and provider.ping():
-        found.append(provider)
+    for module in (playlist_provider, archive_provider):
+        try:
+            provider = module.get_provider()
+        except Exception as exc:
+            kodi.error('built-in provider %s failed: %s' % (module, exc))
+            continue
+        if provider and provider.ping():
+            found.append(provider)
     return found
+
+
+def _config_scrapers():
+    """Sites described by a JSON file in addon_data/providers/sites/."""
+    try:
+        from . import config_scraper
+        return config_scraper.load_configs()
+    except Exception as exc:
+        kodi.error('site configs failed to load: %s' % exc)
+        return []
 
 
 def all_providers(refresh=False):
     if _CACHE['providers'] is None or refresh:
-        providers = _builtin_providers() + _file_providers() + _addon_providers()
+        providers = (_builtin_providers() + _config_scrapers() +
+                     _file_providers() + _addon_providers())
         disabled = set(json.loads(kodi.setting('disabled_providers', '[]') or '[]'))
         providers = [p for p in providers if p.id not in disabled]
         providers.sort(key=lambda p: (p.priority, p.name))
@@ -160,6 +177,11 @@ def collect(capability, item, timeout=None, on_progress=None):
         thread.start()
     for thread in threads:
         thread.join(timeout)
+
+    cap = kodi.setting_int('max_sources', 60)
+    if cap and len(results) > cap:
+        kodi.log('capping %d sources at %d' % (len(results), cap))
+        results = results[:cap]
     return results
 
 

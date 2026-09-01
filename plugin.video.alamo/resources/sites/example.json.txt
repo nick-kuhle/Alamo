@@ -1,0 +1,20 @@
+{
+  "_comment": "Template. Copy to userdata/addon_data/plugin.video.alamo/providers/sites/<name>.json, edit, restart Kodi. See docs/SCRAPERS.md.",
+
+  "id": "example",
+  "name": "Example Site",
+  "base": "https://example.com",
+
+  "search_url": "https://example.com/?s={query}",
+  "result_pattern": "<h2[^>]*><a href=\"(?P<url>[^\"]+)\"[^>]*>(?P<title>[^<]+)</a>",
+  "link_pattern": "<iframe[^>]+src=\"(?P<url>[^\"]+)\"",
+
+  "movie_query": "{title} {year}",
+  "episode_query": "{show} S{season:02d}E{episode:02d}",
+
+  "capabilities": ["movie", "episode"],
+  "require_resolvable": true,
+  "cache_hours": 6,
+  "priority": 50,
+  "headers": {"Referer": "https://example.com/"}
+}

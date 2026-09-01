@@ -176,15 +176,19 @@ class TestSettingsXML(unittest.TestCase):
             self.assertIn(level.text, ('0', '1', '2', '3'))
 
     def test_action_settings_point_at_real_routes(self):
-        import xml.etree.ElementTree as ET  # noqa: F401
+        """Every settings button must hit a route router.dispatch handles."""
+        router_py = os.path.join(os.path.dirname(self.PATH), 'lib', 'router.py')
+        with open(router_py) as handle:
+            routes = set(re.findall(r"action == '([a-z_]+)'", handle.read()))
+        self.assertTrue(routes)
         actions = [s.get('action') or '' for s in self.tree.iter('setting')
                    if s.get('type') == 'action']
         self.assertTrue(actions)
         for action in actions:
             self.assertIn('plugin://plugin.video.alamo/?action=', action)
             name = action.split('action=')[1].rstrip(')')
-            self.assertIn(name, ('set_tmdb', 'providers', 'clear_cache',
-                                 'clear_progress'))
+            self.assertIn(name, routes,
+                          '%s has no handler in router.dispatch' % name)
 
 
 class TestTMDBKeyValidation(unittest.TestCase):
@@ -272,6 +276,194 @@ class TestSkinXML(unittest.TestCase):
         grid = self._read('alamo-grid.xml')
         self.assertIn('id="61"', grid)
         self.assertIn('Window.Property(SearchLabel)', grid)
+
+
+class TestReleaseParsing(unittest.TestCase):
+    def setUp(self):
+        from resources.lib.providers import parsing
+        self.parsing = parsing
+
+    def test_quality(self):
+        cases = {
+            'The.Batman.2022.2160p.UHD.BluRay.x265': '4K',
+            'Heat.1995.1080p.BluRay.DDP5.1.x264': '1080p',
+            'Arrival.2016.720p.WEBRip': '720p',
+            'Dune.Part.Two.2024.HDCAM.x264': 'CAM',
+            'Some.Old.Movie.DVDRip.XviD': 'SD',
+        }
+        for name, expected in cases.items():
+            self.assertEqual(self.parsing.quality(name), expected, name)
+
+    def test_info_tags(self):
+        tags = self.parsing.info_tags(
+            'Dune.Part.Two.2024.2160p.WEB-DL.DDP5.1.Atmos.HDR.HEVC-GROUP')
+        self.assertIn('WEB-DL', tags)
+        self.assertIn('HEVC', tags)
+        self.assertIn('HDR', tags)
+
+    def test_size(self):
+        self.assertEqual(self.parsing.size_gb('4.32 GB'), 4.32)
+        self.assertEqual(self.parsing.size_gb('700 MB'), 0.68)
+        self.assertEqual(self.parsing.size_gb('no size here'), 0.0)
+
+    def test_episode_numbers(self):
+        for name in ('Show.S02E07.1080p', 'Show 2x07 720p',
+                     'Show.Season.2.Episode.7'):
+            self.assertEqual(self.parsing.episode_numbers(name), (2, 7), name)
+
+    def test_movie_matching(self):
+        match = self.parsing.matches_movie
+        self.assertTrue(match('The.Batman.2022.1080p.WEB-DL', 'The Batman', '2022'))
+        self.assertTrue(match('Heat.1995.BluRay.1080p', 'Heat', '1995'))
+        # right title, very wrong year
+        self.assertFalse(match('The.Batman.1966.DVDRip', 'The Batman', '2022'))
+        # completely different film
+        self.assertFalse(match('Batman.Begins.2005.1080p', 'The Batman', '2022'))
+
+    def test_episode_matching(self):
+        match = self.parsing.matches_episode
+        self.assertTrue(match('Severance.S02E03.1080p.WEB', 'Severance', 2, 3))
+        self.assertFalse(match('Severance.S02E04.1080p.WEB', 'Severance', 2, 3))
+        self.assertFalse(match('The.Bear.S02E03.1080p', 'Severance', 2, 3))
+
+    def test_accents_and_punctuation(self):
+        self.assertEqual(self.parsing.normalise("Amélie's Café & Bar"),
+                         'amelies cafe and bar')
+
+
+class TestScraperEngine(unittest.TestCase):
+    def setUp(self):
+        from resources.lib.providers import scraper_base
+        self.scraper_base = scraper_base
+
+    def test_harvest_skips_junk_and_assets(self):
+        class Dummy(self.scraper_base.HosterScraper):
+            id = 'dummy'
+            base_url = 'https://mysite.test'
+
+        body = '''
+          <a href="https://mysite.test/internal">internal</a>
+          <img src="https://cdn.test/poster.jpg">
+          <a href="https://facebook.com/share">fb</a>
+          <iframe src="https://goodhost.test/embed/abc123"></iframe>
+          <a href="https://otherhost.test/v/xyz">mirror</a>
+          <script src="https://cdn.test/app.js"></script>
+        '''
+        found = Dummy().harvest(body)
+        self.assertIn('https://goodhost.test/embed/abc123', found)
+        self.assertIn('https://otherhost.test/v/xyz', found)
+        self.assertNotIn('https://mysite.test/internal', found)
+        self.assertNotIn('https://facebook.com/share', found)
+        self.assertFalse([u for u in found if u.endswith(('.jpg', '.js'))])
+
+    def test_host_of(self):
+        self.assertEqual(self.scraper_base.host_of('https://www.Host.TEST/a/b'),
+                         'host.test')
+
+    def test_query_building(self):
+        class Dummy(self.scraper_base.HosterScraper):
+            id = 'dummy'
+        dummy = Dummy()
+        self.assertEqual(
+            dummy.query_for({'title': 'Heat', 'year': '1995'}, 'movie'),
+            'Heat 1995')
+        self.assertEqual(
+            dummy.query_for({'show_title': 'Severance', 'season': 2,
+                             'episode': 3}, 'episode'),
+            'Severance S02E03')
+
+    def test_end_to_end_against_a_fake_site(self):
+        """Full flow: search -> page -> links -> filtered, parsed sources."""
+        pages = {
+            'https://fake.test/search?q=Heat+1995': (
+                '<a class="r" href="/movie/heat-1995">Heat 1995 1080p BluRay</a>'
+                '<a class="r" href="/movie/heat-2015">Heat 2015 720p</a>'),
+            'https://fake.test/movie/heat-1995':
+                '<iframe src="https://hoster.test/e/abc"></iframe>'
+                '<a href="https://mirror.test/v/def">mirror</a>',
+        }
+
+        class Fake(self.scraper_base.HosterScraper):
+            id = 'fake'
+            base_url = 'https://fake.test'
+            require_resolvable = False
+
+            def fetch(self, url, **kwargs):
+                return pages.get(url, '')
+
+            def search(self, query, item, media_type):
+                body = self.fetch('https://fake.test/search?q=%s'
+                                  % query.replace(' ', '+'))
+                import re as _re
+                return [(t, 'https://fake.test' + u) for u, t in
+                        _re.findall(r'href="([^"]+)">([^<]+)<', body)]
+
+        sources = Fake()._collect({'title': 'Heat', 'year': '1995'}, 'movie')
+        urls = sorted(s['url'] for s in sources)
+        self.assertEqual(urls, ['https://hoster.test/e/abc',
+                                'https://mirror.test/v/def'])
+        self.assertEqual(sources[0]['quality'], '1080p')
+        self.assertIn('BluRay', sources[0]['info'])
+        self.assertFalse(sources[0]['direct'])
+
+
+class TestConfigScraper(unittest.TestCase):
+    def test_builds_from_json_and_scrapes(self):
+        from resources.lib.providers import config_scraper
+        config = {
+            'id': 'jsonsite', 'name': 'JSON Site',
+            'base': 'https://json.test',
+            'search_url': 'https://json.test/?s={query}',
+            'result_pattern': r'<h2><a href="(?P<url>[^"]+)">(?P<title>[^<]+)</a>',
+            'link_pattern': r'<source src="(?P<url>[^"]+)"',
+            'capabilities': ['movie'],
+        }
+        scraper = config_scraper.ConfigScraper(config)
+        self.assertEqual(scraper.id, 'jsonsite')
+        self.assertEqual(scraper.capabilities, ('movie',))
+        self.assertEqual(
+            scraper.query_for({'title': 'Heat', 'year': '1995'}, 'movie'),
+            'Heat 1995')
+
+        pages = {
+            'https://json.test/?s=Heat%201995':
+                '<h2><a href="/w/heat">Heat 1995 1080p WEB</a></h2>',
+            'https://json.test/w/heat':
+                '<source src="https://cdn.host.test/heat.mp4">',
+        }
+        scraper.fetch = lambda url, **kw: pages.get(url, '')
+        scraper.require_resolvable = False
+        sources = scraper._collect({'title': 'Heat', 'year': '1995'}, 'movie')
+        self.assertEqual(len(sources), 1)
+        self.assertEqual(sources[0]['url'], 'https://cdn.host.test/heat.mp4')
+
+    def test_rejects_incomplete_config(self):
+        from resources.lib.providers import config_scraper
+        self.assertEqual(
+            [k for k in config_scraper.REQUIRED
+             if k not in {'id': 1, 'name': 2}],
+            ['search_url', 'result_pattern'])
+
+
+class TestArchiveProvider(unittest.TestCase):
+    def test_filters_mismatched_titles(self):
+        from resources.lib.providers import archive_provider
+        provider = archive_provider.ArchiveProvider()
+        provider._search = lambda title, year: [
+            {'identifier': 'right', 'title': 'Night of the Living Dead'},
+            {'identifier': 'wrong', 'title': 'Family Holiday Home Movie'},
+        ]
+        provider._files = lambda identifier: [
+            {'format': 'h.264', 'name': '%s.mp4' % identifier,
+             'size': '1073741824', 'width': '1920'},
+            {'format': 'Thumbnail', 'name': 'thumb.jpg'},
+        ]
+        sources = provider.movie({'title': 'Night of the Living Dead',
+                                  'year': '1968'})
+        self.assertEqual(len(sources), 1)
+        self.assertIn('right.mp4', sources[0]['url'])
+        self.assertEqual(sources[0]['quality'], '1080p')
+        self.assertTrue(sources[0]['direct'])
 
 
 def tearDownModule():

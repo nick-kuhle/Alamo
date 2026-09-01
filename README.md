@@ -54,6 +54,19 @@ Text is deliberately minimal: tiles show artwork only, and the title/plot appear
 in the hero panel for whatever is focused. Open `docs/ui-preview.html` in a
 browser to see the layout without installing anything.
 
+## Scrapers and sources
+
+See **[docs/SCRAPERS.md](docs/SCRAPERS.md)**. Three ways to add sources:
+
+1. **A JSON site config** - no code. Search URL + two regexes, dropped into
+   `addon_data/plugin.video.alamo/providers/sites/`.
+2. **A `HosterScraper` subclass** - implement `search()` and `links()`; matching,
+   parsing, dedupe, host validation and caching are inherited.
+3. **A `Provider` subclass** - for APIs, debrid clouds or local libraries.
+
+Shipped in the box: **Internet Archive** (public domain film, direct MP4s, works
+with no configuration) and the **playlist** provider for Sports.
+
 ## Sources: nothing is built in
 
 The Alamo ships with **no scrapers**. Everything playable arrives through a

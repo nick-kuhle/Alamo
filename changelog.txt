@@ -34,3 +34,16 @@ v1.0.3
 - Thumbnails have rounded corners matching the focus ring
 - The focus ring, title overlay and highlight now appear only on the row that
   actually has focus - previously every row showed its selected tile as focused
+
+v1.0.4
+- Scraper engine: HosterScraper base class handling search, page fetch, link
+  harvesting, matching, dedupe, host validation and caching
+- Config-driven scrapers: add a site with a JSON file, no Python required
+- Release parsing: quality, source, codec, audio, HDR, size, SxxEyy
+- Title matching by containment with year and extra-word gates, so
+  "Batman Begins" is never returned for "The Batman"
+- Internet Archive provider: public domain film, direct MP4s, quality read from
+  real pixel dimensions, extras and same-titled home movies filtered out
+- HTTP layer with retries, pooled per-thread sessions and bot-wall detection
+- New settings: Internet Archive toggle, hide unresolvable links, source cap
+- docs/SCRAPERS.md and a site config template

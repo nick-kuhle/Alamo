@@ -24,6 +24,12 @@
         <setting id="playlist_url" type="text" label="Playlist URL or file (M3U or Alamo JSON)" default="" />
         <setting id="playlist_refresh" type="slider" label="Refresh playlist every (minutes)" default="30" range="5,5,240" option="int" />
 
+        <setting id="scrapers.sep" type="lsep" label="Scrapers" />
+        <setting id="provider_archive" type="bool" label="Internet Archive (public domain films)" default="true" />
+        <setting id="require_resolvable" type="bool" label="Hide links ResolveURL cannot play" default="true" />
+        <setting id="max_sources" type="slider" label="Stop after this many sources" default="60" range="10,10,200" option="int" />
+        <setting id="open_sites_folder" type="action" label="Where do site configs go?" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=sites_folder)" />
+
         <setting id="providers.sep" type="lsep" label="Installed providers" />
         <setting id="show_providers" type="action" label="Show installed providers" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=providers)" />
         <setting id="tmdb_prompted" type="bool" label="First-run prompt shown" default="false" visible="false" />

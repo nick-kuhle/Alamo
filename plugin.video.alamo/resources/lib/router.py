@@ -170,6 +170,16 @@ def dispatch(argv):
         kodi.notify('Continue Watching cleared')
         return
 
+    if action == 'sites_folder':
+        from .providers import config_scraper
+        folder = config_scraper.sites_dir()
+        found = config_scraper.load_configs()
+        kodi.ok('Drop one JSON file per site into:\n\n%s\n\nLoaded right '
+                'now: %s\n\nFormat: docs/SCRAPERS.md'
+                % (folder, ', '.join(p.id for p in found) or 'none'),
+                'Site configs')
+        return
+
     if action == 'providers':
         from .providers import registry
         found = registry.all_providers(refresh=True)

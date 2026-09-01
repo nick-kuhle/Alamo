@@ -20,7 +20,7 @@
         </assets>
         <news>v1.0.1 - Fixed the add-on settings dialog (TMDB API key was not showing) and added an in-app key prompt with validation.</news>
     </extension>
-</addon><addon id="script.alamo.provider.example" name="Alamo Provider - Example" version="1.0.0" provider-name="Alamo Team">
+</addon><addon id="script.alamo.provider.example" name="Alamo Provider - Example" version="1.0.1" provider-name="Alamo Team">
     <requires>
         <import addon="xbmc.python" version="3.0.1" />
         <import addon="script.module.requests" version="2.27.1" />

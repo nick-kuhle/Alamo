@@ -144,6 +144,109 @@ class TestRouter(unittest.TestCase):
                          '?action=clear_cache'])
 
 
+class TestBuiltinScrapers(unittest.TestCase):
+    """The hand-written scraper layer. No network: gates and metadata only."""
+
+    def setUp(self):
+        from resources.lib import scrapers
+        self.scrapers = scrapers
+        self.found = scrapers.discover(refresh=True)
+
+    def test_discovers_the_shipped_scrapers(self):
+        ids = {s.ID for s in self.found}
+        self.assertIn('wikimedia', ids)
+        self.assertIn('loc', ids)
+
+    def test_metadata_is_declared_not_guessed(self):
+        """The Crew infers kind by grepping source text; we require it stated."""
+        for scraper in self.found:
+            self.assertTrue(scraper.ID, '%s has no ID' % scraper)
+            self.assertTrue(scraper.NAME, '%s has no NAME' % scraper)
+            self.assertIn(scraper.KIND, ('free', 'debrid', 'torrent'))
+            self.assertTrue(scraper.CAPABILITIES)
+            self.assertIsInstance(scraper.PRIORITY, int)
+
+    def test_ids_are_unique(self):
+        ids = [s.ID for s in self.found]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_shared_title_gate(self):
+        """Every case here came from a real API response that fooled us."""
+        from resources.lib.scrapers.base import Scraper
+        gate = Scraper()
+        item = lambda t, y: {'title': t, 'year': y}
+        keep = [
+            ('Night of the Living Dead (1968)', 'Night of the Living Dead', 1968),
+            ('Night of the Living Dead (1968 film)', 'Night of the Living Dead', 1968),
+            ('Nosferatu (1922, English titles 1947)', 'Nosferatu', 1922),
+            ('The Kid (1921)', 'The Kid', 1921),
+        ]
+        drop = [
+            # a clip, not the feature
+            ('Night of the Living Dead - Ten Minutes to Three', 'Night of the Living Dead', 1968),
+            ('The Kid scenes', 'The Kid', 1921),
+            # different films that merely contain the wanted title
+            ('The Wolf and The Kid (1921)', 'The Kid', 1921),
+            ('Beulah Bains In The Kid', 'The Kid', 1921),
+            # junk words
+            ('Night Of The Living Dead (1968) - trailer', 'Night of the Living Dead', 1968),
+        ]
+        for title, wanted, year in keep:
+            self.assertTrue(gate.accepts(title, item(wanted, year)),
+                            'should keep %r' % title)
+        for title, wanted, year in drop:
+            self.assertFalse(gate.accepts(title, item(wanted, year)),
+                             'should drop %r' % title)
+
+    def test_resolution_beats_a_lying_filename(self):
+        """Archives label 640x360 derivatives as _1080p. Pixels win."""
+        from resources.lib.scrapers.base import quality_for
+        self.assertEqual(quality_for(640, 360, 'Movie_1080p'), 'SD')
+        self.assertEqual(quality_for(1920, 1080, 'whatever'), '1080p')
+        self.assertEqual(quality_for(3840, 2160, ''), '4K')
+        self.assertEqual(quality_for(0, 0, 'Movie.720p.WEB'), '720p')
+        self.assertEqual(quality_for(0, 0, 'no hints here'), 'SD')
+
+    def test_junk_detection(self):
+        from resources.lib.scrapers.base import is_junk
+        self.assertTrue(is_junk('The Kid - featurette'))
+        self.assertTrue(is_junk('ok title', 'x_trailer.mp4'))
+        self.assertFalse(is_junk('Night of the Living Dead'))
+
+    def test_scan_report_records_and_sorts_failures_first(self):
+        self.scrapers.begin_report()
+        self.scrapers.record('a', 'Alpha', 5, 1.0)
+        self.scrapers.record('b', 'Beta', 0, 0.2, 'boom')
+        report = self.scrapers.last_report()
+        self.assertEqual(report['sources'], 5)
+        self.assertEqual(report['rows'][0]['id'], 'b')
+
+    def test_bridge_exposes_scrapers_as_providers(self):
+        from resources.lib.providers import scraper_bridge
+        bridged = scraper_bridge.bridged()
+        self.assertTrue(bridged)
+        for provider in bridged:
+            self.assertTrue(provider.id)
+            self.assertTrue(hasattr(provider, 'movie'))
+            self.assertTrue(provider.builtin)
+
+    def test_a_raising_scraper_is_isolated_and_recorded(self):
+        from resources.lib.providers import scraper_bridge
+        from resources.lib.scrapers.base import Scraper
+
+        class Exploding(Scraper):
+            ID, NAME = 'boom', 'Exploding'
+
+            def movie(self, item):
+                raise RuntimeError('site is down')
+
+        self.scrapers.begin_report()
+        provider = scraper_bridge.ScraperProvider(Exploding())
+        self.assertEqual(provider.movie({'title': 'x'}), [])
+        rows = self.scrapers.last_report()['rows']
+        self.assertTrue(any(r['error'] for r in rows))
+
+
 class TestAddonXML(unittest.TestCase):
     """An unsatisfiable dependency makes Kodi refuse updates *silently*."""
 

@@ -2,6 +2,7 @@
 """Discovers, loads and queries providers."""
 import os
 import sys
+import time
 import glob
 import json
 import importlib.util
@@ -89,6 +90,16 @@ def _file_providers():
     return found
 
 
+def _builtin_scrapers():
+    """Hand-written site scrapers shipped inside the add-on."""
+    try:
+        from . import scraper_bridge
+        return scraper_bridge.bridged()
+    except Exception as exc:
+        kodi.error('built-in scrapers failed to load: %s' % exc)
+        return []
+
+
 def _builtin_providers():
     from . import playlist_provider
     from . import archive_provider
@@ -116,8 +127,9 @@ def _config_scrapers():
 
 def all_providers(refresh=False):
     if _CACHE['providers'] is None or refresh:
-        providers = (_builtin_providers() + _config_scrapers() +
-                     _file_providers() + _addon_providers())
+        providers = (_builtin_providers() + _builtin_scrapers() +
+                     _config_scrapers() + _file_providers() +
+                     _addon_providers())
         disabled = set(json.loads(kodi.setting('disabled_providers', '[]') or '[]'))
         providers = [p for p in providers if p.id not in disabled]
         providers.sort(key=lambda p: (p.priority, p.name))
@@ -146,6 +158,8 @@ def collect(capability, item, timeout=None, on_progress=None):
     """Query every capable provider in parallel and return merged sources."""
     timeout = timeout or kodi.setting_int('scrape_timeout', 45)
     providers = for_capability(capability)
+    from .. import scrapers as scraper_registry
+    scraper_registry.begin_report()
     results = []
     lock = threading.Lock()
     done = {'count': 0}
@@ -175,8 +189,20 @@ def collect(capability, item, timeout=None, on_progress=None):
     for thread in threads:
         thread.daemon = True
         thread.start()
+
+    # One shared deadline, not `timeout` per thread. Joining each thread with
+    # the full timeout means N slow providers can stall a scan for N*timeout;
+    # with 12 providers and the default 45s that is nine minutes. The user
+    # asked to wait 45 seconds, so 45 seconds is the whole budget.
+    deadline = time.time() + timeout
     for thread in threads:
-        thread.join(timeout)
+        remaining = deadline - time.time()
+        if remaining <= 0:
+            break
+        thread.join(remaining)
+    still_running = [p.id for p, t in zip(providers, threads) if t.is_alive()]
+    if still_running:
+        kodi.log('scan deadline hit, abandoning: %s' % ', '.join(still_running))
 
     cap = kodi.setting_int('max_sources', 60)
     if cap and len(results) > cap:

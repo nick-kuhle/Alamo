@@ -180,6 +180,37 @@ def dispatch(argv):
                 'Site configs')
         return
 
+    if action == 'scan_report':
+        from . import scrapers as scraper_registry
+        report = scraper_registry.last_report()
+        if not report['rows']:
+            kodi.ok('No scan has run yet in this session.\n\nPlay something '
+                    'first, then come back here.', 'Last source scan')
+            return
+        lines = []
+        for row in report['rows']:
+            if row['error']:
+                lines.append('[COLOR FFD8453C]%s[/COLOR]  failed: %s'
+                             % (row['name'], row['error'][:60]))
+            else:
+                lines.append('%-22s %2d source(s)   %.2fs'
+                             % (row['name'], row['count'], row['elapsed']))
+        lines.append('')
+        lines.append('[COLOR FFE8B44A]%d source(s) in %.2fs total[/COLOR]'
+                     % (report['sources'], report['elapsed']))
+        kodi.ok('\n'.join(lines), 'Last source scan')
+        return
+
+    if action == 'scrapers':
+        from . import scrapers as scraper_registry
+        found = scraper_registry.discover(refresh=True)
+        lines = ['%s  [COLOR FF9A9AA6]%s / priority %d[/COLOR]'
+                 % (s.NAME, s.KIND, s.PRIORITY) for s in found]
+        kodi.ok('Built-in scrapers shipped with The Alamo:\n\n%s\n\n'
+                'Turn individual ones off under Sources > Providers.'
+                % '\n'.join(lines), 'Built-in scrapers')
+        return
+
     if action == 'providers':
         from .providers import registry
         found = registry.all_providers(refresh=True)

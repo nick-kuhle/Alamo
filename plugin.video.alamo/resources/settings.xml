@@ -38,6 +38,8 @@
 
     <category label="Maintenance">
         <setting id="maint.sep" type="lsep" label="Maintenance" />
+        <setting id="view_scrapers" type="action" label="Built-in scrapers" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=scrapers)" />
+        <setting id="scan_report" type="action" label="Last source scan (diagnostics)" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=scan_report)" />
         <setting id="clear_cache" type="action" label="Clear cache" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=clear_cache)" />
         <setting id="clear_progress" type="action" label="Clear Continue Watching" option="close" action="RunPlugin(plugin://plugin.video.alamo/?action=clear_progress)" />
     </category>

@@ -91,6 +91,77 @@ def build_repo_addon():
     return staging
 
 
+LANDING = '''<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<title>The Alamo - Kodi repository</title>
+<style>
+body{{background:#07070b;color:#f4f4f6;font-family:-apple-system,Helvetica,Arial,sans-serif;
+     max-width:760px;margin:0 auto;padding:56px 24px;line-height:1.65}}
+h1{{font-size:34px;letter-spacing:1px;margin:0 0 4px}} h1 span{{color:#e8b44a}}
+p.sub{{color:#9a9aa6;margin-top:0}}
+code{{background:#14141c;padding:2px 7px;border-radius:4px;color:#e8b44a}}
+a{{color:#e8b44a}}
+.box{{background:#0d0d14;border:1px solid #22222c;border-radius:10px;padding:20px 24px;margin:26px 0}}
+ul.files{{list-style:none;padding:0}} ul.files li{{padding:3px 0}}
+</style></head><body>
+<h1>THE <span>ALAMO</span></h1>
+<p class="sub">A Kodi 21+ video add-on. Sports, TV and Movies - nothing else.</p>
+<div class="box"><b>Source URL for Kodi</b><br><code>{url}</code></div>
+<ol>
+<li>Kodi &rarr; <b>Settings &rarr; System &rarr; Add-ons</b> &rarr; turn on <b>Unknown sources</b>.</li>
+<li><b>Settings &rarr; File manager &rarr; Add source</b> &rarr; paste the URL above &rarr; name it <code>alamo</code>.</li>
+<li><b>Add-ons &rarr; Install from zip file &rarr; alamo &rarr; repository.alamo &rarr; repository.alamo-{repo_ver}.zip</b>.</li>
+<li><b>Add-ons &rarr; Install from repository &rarr; The Alamo Repository &rarr; Video add-ons &rarr; The Alamo</b>.</li>
+</ol>
+<p>Direct downloads (if you would rather skip the repository):</p>
+<ul class="files">{links}</ul>
+<p>The Alamo hosts no content and contains no scrapers. Playable links come only
+from provider plug-ins you install yourself.</p>
+</body></html>
+'''
+
+
+def write_indexes():
+    """Kodi browses HTTP sources by parsing <a href> links, and GitHub Pages
+    does not generate directory listings - so we write our own everywhere."""
+    downloads = []
+    for entry in sorted(os.listdir(DIST)):
+        folder = os.path.join(DIST, entry)
+        if not os.path.isdir(folder):
+            continue
+        rows = []
+        for name in sorted(os.listdir(folder)):
+            rows.append('<li><a href="%s">%s</a></li>' % (name, name))
+            if name.endswith('.zip'):
+                downloads.append('<li><a href="%s/%s">%s</a></li>'
+                                 % (entry, name, name))
+        with open(os.path.join(folder, 'index.html'), 'w') as handle:
+            handle.write('<html><head><meta charset="utf-8"><title>%s</title>'
+                         '</head><body><h1>%s</h1><ul>%s</ul></body></html>\n'
+                         % (entry, entry, ''.join(rows)))
+
+    # the root needs links to every subfolder AND every loose file, or Kodi's
+    # file manager shows an empty source
+    root_rows = []
+    for entry in sorted(os.listdir(DIST)):
+        if entry == 'index.html':
+            continue
+        suffix = '/' if os.path.isdir(os.path.join(DIST, entry)) else ''
+        root_rows.append('<li><a href="%s%s">%s%s</a></li>'
+                         % (entry, suffix, entry, suffix))
+    landing = LANDING.format(url=REPO_URL, repo_ver=REPO_VERSION,
+                             links=''.join(downloads))
+    landing = landing.replace('</body>',
+                              '<hr style="border-color:#22222c;margin:32px 0">'
+                              '<ul class="files">%s</ul></body>'
+                              % ''.join(root_rows))
+    with open(os.path.join(DIST, 'index.html'), 'w') as handle:
+        handle.write(landing)
+    with open(os.path.join(DIST, '.nojekyll'), 'w') as handle:
+        handle.write('')
+    print('wrote index.html for the root and every add-on folder')
+
+
 def main():
     clean()
     roots = []
@@ -115,6 +186,7 @@ def main():
     with open(os.path.join(DIST, 'addons.xml.md5'), 'w') as handle:
         handle.write(digest)
     shutil.rmtree(os.path.join(DIST, '_staging'), ignore_errors=True)
+    write_indexes()
     print('addons.xml md5', digest)
     print('\ndist/ is ready - upload it to', REPO_URL)
 

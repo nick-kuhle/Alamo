@@ -25,10 +25,16 @@ FADE_LEFT = 'fade_left.png'
 FRAME = 'frame.png'
 
 ROWS = [101, 102, 103, 104, 105]
-ROW_TOP = 560
-ROW_H = 250          # poster row pitch
 TILE_W = 168
 TILE_H = 252
+CAPTION_H = 52       # room for a title under a grid tile
+
+# Home layout: the focused row never moves. The whole row block slides up by
+# exactly one pitch per row so the focused row always sits at ROW_TOP, and the
+# hero is drawn *after* the rows so anything scrolling above it is covered.
+HERO_H = 520
+ROW_TOP = 566        # y of the focused row's posters - fixed, always
+ROW_H = 318          # row pitch (poster + title + gap)
 
 
 def img(left, top, width, height, texture, diffuse=None, aspect='scale',
@@ -103,7 +109,6 @@ def sidebar(active_hint=''):
     """Thin icon rail on the left - labels only appear when it has focus."""
     items = f'''      <control type="group">
         <left>0</left><top>0</top>
-        <animation effect="slide" start="0,0" end="0,0" time="0">Conditional</animation>
 {img(0, 0, 300, 1080, WHITE, 'E60A0A10')}
 {img(0, 0, 300, 1080, FADE_LEFT, 'FF000000')}
 {img(46, 44, 208, 58, 'logo.png', None, 'keep')}
@@ -158,9 +163,37 @@ def spinner():
       </control>'''
 
 
-def poster_layouts(width=TILE_W, height=TILE_H, show_label=True):
-    """Netflix style tile: artwork only, title only on the focused tile."""
-    item = f'''          <itemlayout width="{width + 22}" height="{height + 26}">
+def poster_layouts(width=TILE_W, height=TILE_H, show_title=False):
+    """Netflix style tile.
+
+    ``show_title`` adds a caption under every tile - used by the Movies, TV and
+    Sports grids, where you are choosing between things and need to read them.
+    On the home rows the title lives in the hero panel instead.
+    """
+    cap = CAPTION_H if show_title else 0
+    caption_item = ''
+    caption_focus = ''
+    if show_title:
+        caption_item = f'''
+            <control type="label">
+              <left>0</left><top>{height + 4}</top>
+              <width>{width}</width><height>{cap - 6}</height>
+              <label>$INFO[ListItem.Label]</label>
+              <font>font10</font><textcolor>{DIM}</textcolor>
+              <align>center</align><aligny>top</aligny>
+              <wrapmultiline>true</wrapmultiline>
+            </control>'''
+        caption_focus = f'''
+              <control type="label">
+                <left>-11</left><top>{height + 4}</top>
+                <width>{width + 22}</width><height>{cap - 6}</height>
+                <label>$INFO[ListItem.Label]</label>
+                <font>font12</font><textcolor>{TEXT}</textcolor>
+                <align>center</align><aligny>top</aligny>
+                <wrapmultiline>true</wrapmultiline>
+              </control>'''
+
+    return f'''          <itemlayout width="{width + 22}" height="{height + 26 + cap}">
             <control type="image">
               <left>0</left><top>0</top><width>{width}</width><height>{height}</height>
               <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
@@ -172,9 +205,9 @@ def poster_layouts(width=TILE_W, height=TILE_H, show_label=True):
               <left>0</left><top>0</top><width>{width}</width><height>{height}</height>
               <texture>{WHITE}</texture>
               <colordiffuse>66000000</colordiffuse>
-            </control>
+            </control>{caption_item}
           </itemlayout>
-          <focusedlayout width="{width + 22}" height="{height + 26}">
+          <focusedlayout width="{width + 22}" height="{height + 26 + cap}">
             <control type="group">
               <animation effect="zoom" start="100" end="110" center="{int(width / 2)},{int(height / 2)}" time="180" tween="sine" reversible="true">Focus</animation>
               <control type="image">
@@ -189,13 +222,19 @@ def poster_layouts(width=TILE_W, height=TILE_H, show_label=True):
                 <fadetime>200</fadetime>
               </control>
               <control type="image">
-                <left>0</left><top>{height - 46}</top><width>{width}</width><height>46</height>
+                <left>0</left><top>{height - 78}</top><width>{width}</width><height>78</height>
                 <texture>{FADE_BOTTOM}</texture>
               </control>
               <control type="label">
-                <left>8</left><top>{height - 42}</top><width>{width - 16}</width><height>36</height>
+                <left>8</left><top>{height - 74}</top><width>{width - 16}</width><height>52</height>
+                <label>$INFO[ListItem.Label]</label>
+                <font>font10</font><textcolor>{TEXT}</textcolor>
+                <aligny>bottom</aligny><wrapmultiline>true</wrapmultiline>
+              </control>
+              <control type="label">
+                <left>8</left><top>{height - 26}</top><width>{width - 16}</width><height>22</height>
                 <label>$INFO[ListItem.Property(rating)]</label>
-                <font>font12</font><textcolor>{GOLD}</textcolor>
+                <font>font10</font><textcolor>{GOLD}</textcolor>
               </control>
               <control type="image">
                 <left>{width - 56}</left><top>8</top><width>48</width><height>22</height>
@@ -208,10 +247,9 @@ def poster_layouts(width=TILE_W, height=TILE_H, show_label=True):
                 <label>LIVE</label><font>font10</font><align>center</align>
                 <textcolor>{TEXT}</textcolor>
                 <visible>String.IsEqual(ListItem.Property(live),true)</visible>
-              </control>
+              </control>{caption_focus}
             </control>
           </focusedlayout>'''
-    return item
 
 
 def hero_block(container_id):
@@ -219,12 +257,12 @@ def hero_block(container_id):
     return f'''      <control type="group">
         <visible>Control.HasFocus({container_id})</visible>
         <animation effect="fade" start="0" end="100" time="300">Visible</animation>
-{img(0, 0, 1920, 700, f'$INFO[Container({container_id}).ListItem.Art(fanart)]', 'FFFFFFFF', 'scale', '<fadetime>400</fadetime>')}
-{img(0, 300, 1920, 400, FADE_BOTTOM)}
-{img(0, 0, 1100, 700, FADE_LEFT)}
-{label(340, 300, 900, 60, f'$INFO[Container({container_id}).ListItem.Label]', TEXT, 'font30_title')}
-{label(340, 366, 900, 34, f'$INFO[Container({container_id}).ListItem.Property(year)]  $INFO[Container({container_id}).ListItem.Property(badge)]  $INFO[Container({container_id}).ListItem.Property(rating)]', GOLD, 'font12')}
-{textbox(340, 410, 780, 110, f'$INFO[Container({container_id}).ListItem.Property(plot)]')}
+{img(0, 0, 1920, HERO_H, f'$INFO[Container({container_id}).ListItem.Art(fanart)]', 'FFFFFFFF', 'scale', '<fadetime>400</fadetime>')}
+{img(0, HERO_H - 300, 1920, 300, FADE_BOTTOM)}
+{img(0, 0, 1100, HERO_H, FADE_LEFT)}
+{label(340, 190, 900, 60, f'$INFO[Container({container_id}).ListItem.Label]', TEXT, 'font30_title')}
+{label(340, 256, 900, 34, f'$INFO[Container({container_id}).ListItem.Property(year)]  $INFO[Container({container_id}).ListItem.Property(badge)]  $INFO[Container({container_id}).ListItem.Property(rating)]', GOLD, 'font12')}
+{textbox(340, 300, 780, 130, f'$INFO[Container({container_id}).ListItem.Property(plot)]')}
       </control>'''
 
 
@@ -233,42 +271,74 @@ def hero_block(container_id):
 # --------------------------------------------------------------------------
 
 def home():
+    """Netflix-style home.
+
+    The focused row is pinned at ROW_TOP: instead of scrolling the viewport, the
+    whole block of rows slides up one pitch per row (one conditional animation
+    per row, only one of which can be active). Unfocused rows fade back, and the
+    hero is drawn after the rows so rows leaving the top disappear behind it.
+    """
+    # nav targets: comma lists so navigation skips rows that are empty/hidden
+    def targets(index, direction):
+        order = (range(index + 1, len(ROWS)) if direction == 'down'
+                 else range(index - 1, -1, -1))
+        return ','.join(str(ROWS[i]) for i in order)
+
     rows = []
     for index, cid in enumerate(ROWS):
         top = ROW_TOP + index * ROW_H
-        prev_ = ROWS[index - 1] if index else ROWS[-1]
-        next_ = ROWS[(index + 1) % len(ROWS)]
         visible = f'!String.IsEmpty(Window.Property(Row{index + 1}Title))'
-        rows.append(f'''      <control type="group">
-        <visible>{visible}</visible>
-{label(340, top - 42, 900, 34, f'$INFO[Window.Property(Row{index + 1}Title)]', TEXT, 'font13')}
-        <control type="list" id="{cid}">
-          <left>340</left><top>{top}</top>
-          <width>1560</width><height>{TILE_H + 26}</height>
-          <orientation>horizontal</orientation>
-          <onleft>90</onleft>
-          <onup>{prev_}</onup>
-          <ondown>{next_}</ondown>
-          <scrolltime tween="sine">300</scrolltime>
-          <preloaditems>2</preloaditems>
+        down = targets(index, 'down')
+        up = targets(index, 'up')
+        rows.append(f'''        <control type="group">
+          <visible>{visible}</visible>
+          <animation effect="fade" start="100" end="38" time="200" condition="!Control.HasFocus({cid})">Conditional</animation>
+{label(340, top - 44, 900, 36, f'$INFO[Window.Property(Row{index + 1}Title)]', TEXT, 'font13')}
+          <control type="list" id="{cid}">
+            <left>340</left><top>{top}</top>
+            <width>1560</width><height>{TILE_H + 26}</height>
+            <orientation>horizontal</orientation>
+            <onleft>90</onleft>
+            {f'<onup>{up}</onup>' if up else ''}
+            {f'<ondown>{down}</ondown>' if down else ''}
+            <scrolltime tween="sine">300</scrolltime>
+            <preloaditems>2</preloaditems>
 {poster_layouts()}
-        </control>
-      </control>''')
+          </control>
+        </control>''')
 
-    heroes = '\n'.join(hero_block(cid) for cid in ROWS)
+    # one slide per row - exactly one condition is true at a time
+    slides = '\n'.join(
+        f'        <animation effect="slide" start="0,0" end="0,{-index * ROW_H}" '
+        f'time="320" tween="sine" condition="Control.HasFocus({cid})">Conditional</animation>'
+        for index, cid in enumerate(ROWS) if index)
+
     body = '\n'.join(rows)
+    heroes = '\n'.join(hero_block(cid) for cid in ROWS)
+
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <window>
   <defaultcontrol always="true">101</defaultcontrol>
   <backgroundcolor>{BG}</backgroundcolor>
   <controls>
 {img(0, 0, 1920, 1080, WHITE, BG)}
-{heroes}
-{img(0, 640, 1920, 440, WHITE, 'BB07070B')}
+
+    <!-- rows: drawn first so they slide up behind the hero -->
+    <control type="group">
+{slides}
 {body}
+    </control>
+
+    <!-- hero: drawn after the rows, so it covers anything scrolling past it -->
+    <control type="group">
+{img(0, 0, 1920, HERO_H, WHITE, BG)}
+{heroes}
+{img(0, HERO_H - 160, 1920, 160, FADE_BOTTOM)}
+    </control>
+
 {sidebar()}
 {spinner()}
-{label(340, 500, 1200, 40, '$INFO[Window.Property(Empty)]', GOLD, 'font13', 'left', '<visible>!String.IsEmpty(Window.Property(Empty))</visible>')}
+{label(340, HERO_H + 40, 1200, 40, '$INFO[Window.Property(Empty)]', GOLD, 'font13', 'left', '<visible>!String.IsEmpty(Window.Property(Empty))</visible>')}
   </controls>
 </window>
 '''
@@ -288,12 +358,12 @@ def grid():
 {label(340, 124, 1200, 30, '$INFO[Container(50).ListItem.Label]  $INFO[Container(50).ListItem.Property(year)]', GOLD, 'font12')}
 {textbox(340, 158, 900, 90, '$INFO[Container(50).ListItem.Property(plot)]')}
     <control type="panel" id="50">
-      <left>340</left><top>300</top>
-      <width>1560</width><height>760</height>
+      <left>340</left><top>286</top>
+      <width>1570</width><height>794</height>
       <onleft>90</onleft>
       <scrolltime tween="sine">300</scrolltime>
       <preloaditems>2</preloaditems>
-{poster_layouts()}
+{poster_layouts(show_title=True)}
     </control>
 {sidebar()}
 {spinner()}

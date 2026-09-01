@@ -54,6 +54,11 @@
   .tile .name{position:absolute;left:8px;right:8px;bottom:26px;font-size:13px;line-height:1.2;
         text-shadow:0 2px 8px #000;opacity:.0}
   .tile.focus .name{opacity:1}
+  .rowWrap{transition:opacity .2s} .rowWrap.dim{opacity:.38}
+  .cap{width:168px;text-align:center;font-size:12px;color:#9a9aa6;margin-top:6px;
+       line-height:1.25}
+  .tileBox.focus .cap{color:#f4f4f6}
+  .tileBox{flex:none}
 
   .caption{padding:26px 40px;color:var(--dim);font-size:15px;max-width:1200px;line-height:1.6}
   h2.sec{padding:40px 40px 0;font-size:20px;color:var(--gold);letter-spacing:2px}
@@ -61,9 +66,10 @@
 </head>
 <body>
 <h2 class="sec">HOME - poster wall</h2>
-<p class="caption">Artwork first, text second. The hero panel at the top is bound to whatever tile is focused, so a
-single click of the remote is all it takes to read what something is. Rows are Continue Watching, Live &amp; On Now,
-Trending Movies, Trending TV.</p>
+<p class="caption">Artwork first, text second. The focused row is <b>pinned in place</b>: moving down slides the whole
+block up one row rather than scrolling the viewport, so the active row never leaves that spot and rows above disappear
+behind the hero. Unfocused rows fade back to 38%. Titles appear over the poster on the focused tile, and the hero shows
+the full detail.</p>
 <div class="wrap"><div class="screen" id="home">
   <div class="hero"></div>
   <div class="heroText">
@@ -89,9 +95,9 @@ Trending Movies, Trending TV.</p>
   <div class="rows" id="rows"></div>
 </div></div>
 
-<h2 class="sec">SPORTS - league tiles, then live events</h2>
-<p class="caption">Sports is a wall of league tiles from your providers. Inside a league, live items carry a red LIVE
-badge and play with one click - no menus in between.</p>
+<h2 class="sec">MOVIES / TV / SPORTS grid - every tile captioned</h2>
+<p class="caption">Every browse grid now captions each tile, because here you are choosing between things and need to
+read them. Live items carry a red LIVE badge and play with one click.</p>
 <div class="wrap"><div class="screen" id="sports">
   <div class="hero" style="background:linear-gradient(120deg,#0e1c14,#1d2b18 45%,#3a2a12)"></div>
   <div class="heroText" style="top:60px">
@@ -140,13 +146,14 @@ function row(title,items,focusIndex,isLive){
     items.map((it,i)=>tile(it[0],it[1],i+title.length,i===focusIndex,isLive)).join('')+`</div>`;
 }
 document.getElementById('rows').innerHTML =
-  row('Continue Watching',shows.slice(0,7),-1,false)+
-  row('Live &amp; On Now',live.slice(0,7),-1,true)+
-  row('Trending Movies',movies,0,false);
+  '<div class="rowWrap dim">'+row('Continue Watching',shows.slice(0,7),-1,false)+'</div>'+
+  '<div class="rowWrap dim">'+row('Live &amp; On Now',live.slice(0,7),-1,true)+'</div>'+
+  '<div class="rowWrap">'+row('Trending Movies',movies,0,false)+'</div>';
 
 document.getElementById('grid').innerHTML =
   '<div class="row" style="flex-wrap:wrap;width:1500px">'+
-  leagues.map((l,i)=>tile(l,'',i,i===0,false)).join('')+'</div>';
+  leagues.map((l,i)=>'<div class="tileBox '+(i===0?'focus':'')+'">'+
+     tile(l,'',i,i===0,false)+'<div class="cap">'+l+'</div></div>').join('')+'</div>';
 
 function fit(){
   document.querySelectorAll('.screen').forEach(s=>{

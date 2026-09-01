@@ -37,16 +37,18 @@ def _open(cls, **kwargs):
     return following
 
 
-def _tile(title, thumb='', plot='', open_callback=None, badge=''):
+def _tile(title, thumb='', plot='', open_callback=None, badge='', fanart=''):
     return {'type': 'category', 'title': title, 'thumb': thumb, 'poster': thumb,
-            'fanart': thumb, 'plot': plot, 'open': open_callback, 'badge': badge}
+            'fanart': fanart or thumb, 'plot': plot, 'open': open_callback,
+            'badge': badge}
 
 
 def _row_art(media_type, row_id):
-    """Use the top item's artwork as the tile image - cheap and gorgeous."""
+    """Use the top item's poster as the tile image - portrait, so it fills the
+    same 2:3 frame as every other tile instead of being stretched."""
     try:
         items, _ = tmdb.row(media_type, row_id)
-        return items[0]['backdrop'] or items[0]['thumb'] if items else ''
+        return (items[0]['poster'] or items[0]['thumb']) if items else ''
     except Exception:
         return ''
 
@@ -54,7 +56,7 @@ def _row_art(media_type, row_id):
 def _genre_art(media_type, genre_id):
     try:
         items, _ = tmdb.genre(media_type, genre_id)
-        return items[0]['backdrop'] or items[0]['thumb'] if items else ''
+        return (items[0]['poster'] or items[0]['thumb']) if items else ''
     except Exception:
         return ''
 

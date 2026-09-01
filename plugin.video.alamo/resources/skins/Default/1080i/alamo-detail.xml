@@ -277,13 +277,19 @@
                 <fadetime>200</fadetime>
               </control>
               <control type="image">
-                <left>0</left><top>194</top><width>160</width><height>46</height>
+                <left>0</left><top>162</top><width>160</width><height>78</height>
                 <texture>fade_bottom.png</texture>
               </control>
               <control type="label">
-                <left>8</left><top>198</top><width>144</width><height>36</height>
+                <left>8</left><top>166</top><width>144</width><height>52</height>
+                <label>$INFO[ListItem.Label]</label>
+                <font>font10</font><textcolor>FFF4F4F6</textcolor>
+                <aligny>bottom</aligny><wrapmultiline>true</wrapmultiline>
+              </control>
+              <control type="label">
+                <left>8</left><top>214</top><width>144</width><height>22</height>
                 <label>$INFO[ListItem.Property(rating)]</label>
-                <font>font12</font><textcolor>FFE8B44A</textcolor>
+                <font>font10</font><textcolor>FFE8B44A</textcolor>
               </control>
               <control type="image">
                 <left>104</left><top>8</top><width>48</width><height>22</height>

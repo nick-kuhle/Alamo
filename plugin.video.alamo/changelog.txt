@@ -1,0 +1,7 @@
+v1.0.0
+- First release
+- Sports, TV and Movies only
+- Custom poster-first UI: home hero + rows, poster grid, detail page, source scanner
+- TMDB metadata with sqlite caching
+- Pluggable provider system with parallel scanning and ResolveURL support
+- Built-in M3U / JSON playlist provider for Sports

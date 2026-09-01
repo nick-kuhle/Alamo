@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+    <section id="plugin.video.alamo">
+        <category id="general" label="30001" help="">
+            <group id="1" label="30010">
+                <setting id="tmdb_key" type="string" label="30011" help="30012">
+                    <level>0</level>
+                    <default></default>
+                    <control type="edit" format="string">
+                        <heading>30011</heading>
+                    </control>
+                </setting>
+                <setting id="tmdb_language" type="string" label="30013" help="">
+                    <level>0</level>
+                    <default>en-US</default>
+                    <constraints>
+                        <options>
+                            <option label="English">en-US</option>
+                            <option label="English (UK)">en-GB</option>
+                            <option label="Espanol">es-ES</option>
+                            <option label="Espanol (MX)">es-MX</option>
+                            <option label="Francais">fr-FR</option>
+                            <option label="Deutsch">de-DE</option>
+                            <option label="Italiano">it-IT</option>
+                            <option label="Portugues (BR)">pt-BR</option>
+                            <option label="Nederlands">nl-NL</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>30013</heading>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="30020">
+                <setting id="autoplay" type="boolean" label="30021" help="30022">
+                    <level>0</level>
+                    <default>true</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="max_quality" type="string" label="30023" help="">
+                    <level>0</level>
+                    <default>1080p</default>
+                    <constraints>
+                        <options>
+                            <option label="4K">4K</option>
+                            <option label="1080p">1080p</option>
+                            <option label="720p">720p</option>
+                            <option label="SD">SD</option>
+                        </options>
+                    </constraints>
+                    <control type="list" format="string">
+                        <heading>30023</heading>
+                    </control>
+                </setting>
+                <setting id="allow_cam" type="boolean" label="30024" help="">
+                    <level>0</level>
+                    <default>false</default>
+                    <control type="toggle"/>
+                </setting>
+                <setting id="scrape_timeout" type="integer" label="30025" help="">
+                    <level>0</level>
+                    <default>45</default>
+                    <constraints>
+                        <minimum>10</minimum>
+                        <step>5</step>
+                        <maximum>120</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="providers" label="30030" help="">
+            <group id="1" label="30031">
+                <setting id="playlist_url" type="string" label="30032" help="30033">
+                    <level>0</level>
+                    <default></default>
+                    <control type="edit" format="string">
+                        <heading>30032</heading>
+                    </control>
+                </setting>
+                <setting id="playlist_refresh" type="integer" label="30034" help="">
+                    <level>0</level>
+                    <default>30</default>
+                    <constraints>
+                        <minimum>5</minimum>
+                        <step>5</step>
+                        <maximum>240</maximum>
+                    </constraints>
+                    <control type="slider" format="integer">
+                        <popup>false</popup>
+                    </control>
+                </setting>
+            </group>
+            <group id="2" label="30035">
+                <setting id="show_providers" type="action" label="30036" help="30037">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.alamo/?action=providers)</data>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
+                </setting>
+                <setting id="disabled_providers" type="string" label="30038">
+                    <level>4</level>
+                    <default>[]</default>
+                    <control type="edit" format="string">
+                        <heading>30038</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+        <category id="maintenance" label="30040" help="">
+            <group id="1" label="30040">
+                <setting id="clear_cache" type="action" label="30041" help="">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.alamo/?action=clear_cache)</data>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
+                </setting>
+                <setting id="clear_progress" type="action" label="30042" help="">
+                    <level>0</level>
+                    <data>RunPlugin(plugin://plugin.video.alamo/?action=clear_progress)</data>
+                    <control type="button" format="action">
+                        <close>false</close>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
+</settings>

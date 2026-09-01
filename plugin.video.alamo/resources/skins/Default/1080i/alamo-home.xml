@@ -1,0 +1,746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+  <defaultcontrol always="true">101</defaultcontrol>
+  <backgroundcolor>FF07070B</backgroundcolor>
+  <controls>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>1080</height>
+        <texture>white.png</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FF07070B</colordiffuse>
+        
+      </control>
+      <control type="group">
+        <visible>Control.HasFocus(101)</visible>
+        <animation effect="fade" start="0" end="100" time="300">Visible</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>700</height>
+        <texture>$INFO[Container(101).ListItem.Art(fanart)]</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FFFFFFFF</colordiffuse>
+        <fadetime>400</fadetime>
+      </control>
+      <control type="image">
+        <left>0</left><top>300</top>
+        <width>1920</width><height>400</height>
+        <texture>fade_bottom.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1100</width><height>700</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>300</top>
+        <width>900</width><height>60</height>
+        <label>$INFO[Container(101).ListItem.Label]</label>
+        <font>font30_title</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>366</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Container(101).ListItem.Property(year)]  $INFO[Container(101).ListItem.Property(badge)]  $INFO[Container(101).ListItem.Property(rating)]</label>
+        <font>font12</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="textbox">
+        <left>340</left><top>410</top>
+        <width>780</width><height>110</height>
+        <label>$INFO[Container(101).ListItem.Property(plot)]</label>
+        <font>font12</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <autoscroll time="3000" delay="6000" repeat="8000">true</autoscroll>
+      </control>
+      </control>
+      <control type="group">
+        <visible>Control.HasFocus(102)</visible>
+        <animation effect="fade" start="0" end="100" time="300">Visible</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>700</height>
+        <texture>$INFO[Container(102).ListItem.Art(fanart)]</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FFFFFFFF</colordiffuse>
+        <fadetime>400</fadetime>
+      </control>
+      <control type="image">
+        <left>0</left><top>300</top>
+        <width>1920</width><height>400</height>
+        <texture>fade_bottom.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1100</width><height>700</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>300</top>
+        <width>900</width><height>60</height>
+        <label>$INFO[Container(102).ListItem.Label]</label>
+        <font>font30_title</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>366</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Container(102).ListItem.Property(year)]  $INFO[Container(102).ListItem.Property(badge)]  $INFO[Container(102).ListItem.Property(rating)]</label>
+        <font>font12</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="textbox">
+        <left>340</left><top>410</top>
+        <width>780</width><height>110</height>
+        <label>$INFO[Container(102).ListItem.Property(plot)]</label>
+        <font>font12</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <autoscroll time="3000" delay="6000" repeat="8000">true</autoscroll>
+      </control>
+      </control>
+      <control type="group">
+        <visible>Control.HasFocus(103)</visible>
+        <animation effect="fade" start="0" end="100" time="300">Visible</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>700</height>
+        <texture>$INFO[Container(103).ListItem.Art(fanart)]</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FFFFFFFF</colordiffuse>
+        <fadetime>400</fadetime>
+      </control>
+      <control type="image">
+        <left>0</left><top>300</top>
+        <width>1920</width><height>400</height>
+        <texture>fade_bottom.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1100</width><height>700</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>300</top>
+        <width>900</width><height>60</height>
+        <label>$INFO[Container(103).ListItem.Label]</label>
+        <font>font30_title</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>366</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Container(103).ListItem.Property(year)]  $INFO[Container(103).ListItem.Property(badge)]  $INFO[Container(103).ListItem.Property(rating)]</label>
+        <font>font12</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="textbox">
+        <left>340</left><top>410</top>
+        <width>780</width><height>110</height>
+        <label>$INFO[Container(103).ListItem.Property(plot)]</label>
+        <font>font12</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <autoscroll time="3000" delay="6000" repeat="8000">true</autoscroll>
+      </control>
+      </control>
+      <control type="group">
+        <visible>Control.HasFocus(104)</visible>
+        <animation effect="fade" start="0" end="100" time="300">Visible</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>700</height>
+        <texture>$INFO[Container(104).ListItem.Art(fanart)]</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FFFFFFFF</colordiffuse>
+        <fadetime>400</fadetime>
+      </control>
+      <control type="image">
+        <left>0</left><top>300</top>
+        <width>1920</width><height>400</height>
+        <texture>fade_bottom.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1100</width><height>700</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>300</top>
+        <width>900</width><height>60</height>
+        <label>$INFO[Container(104).ListItem.Label]</label>
+        <font>font30_title</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>366</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Container(104).ListItem.Property(year)]  $INFO[Container(104).ListItem.Property(badge)]  $INFO[Container(104).ListItem.Property(rating)]</label>
+        <font>font12</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="textbox">
+        <left>340</left><top>410</top>
+        <width>780</width><height>110</height>
+        <label>$INFO[Container(104).ListItem.Property(plot)]</label>
+        <font>font12</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <autoscroll time="3000" delay="6000" repeat="8000">true</autoscroll>
+      </control>
+      </control>
+      <control type="group">
+        <visible>Control.HasFocus(105)</visible>
+        <animation effect="fade" start="0" end="100" time="300">Visible</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1920</width><height>700</height>
+        <texture>$INFO[Container(105).ListItem.Art(fanart)]</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FFFFFFFF</colordiffuse>
+        <fadetime>400</fadetime>
+      </control>
+      <control type="image">
+        <left>0</left><top>300</top>
+        <width>1920</width><height>400</height>
+        <texture>fade_bottom.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>1100</width><height>700</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>300</top>
+        <width>900</width><height>60</height>
+        <label>$INFO[Container(105).ListItem.Label]</label>
+        <font>font30_title</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="label">
+        <left>340</left><top>366</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Container(105).ListItem.Property(year)]  $INFO[Container(105).ListItem.Property(badge)]  $INFO[Container(105).ListItem.Property(rating)]</label>
+        <font>font12</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+      <control type="textbox">
+        <left>340</left><top>410</top>
+        <width>780</width><height>110</height>
+        <label>$INFO[Container(105).ListItem.Property(plot)]</label>
+        <font>font12</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <autoscroll time="3000" delay="6000" repeat="8000">true</autoscroll>
+      </control>
+      </control>
+      <control type="image">
+        <left>0</left><top>640</top>
+        <width>1920</width><height>440</height>
+        <texture>white.png</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>BB07070B</colordiffuse>
+        
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Row1Title))</visible>
+      <control type="label">
+        <left>340</left><top>518</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Window.Property(Row1Title)]</label>
+        <font>font13</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+        <control type="list" id="101">
+          <left>340</left><top>560</top>
+          <width>1560</width><height>278</height>
+          <orientation>horizontal</orientation>
+          <onleft>90</onleft>
+          <onup>105</onup>
+          <ondown>102</ondown>
+          <scrolltime tween="sine">300</scrolltime>
+          <preloaditems>2</preloaditems>
+          <itemlayout width="190" height="278">
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
+              <aspectratio aligny="top">scale</aspectratio>
+              <bordersize>0</bordersize>
+              <fadetime>200</fadetime>
+            </control>
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture>white.png</texture>
+              <colordiffuse>66000000</colordiffuse>
+            </control>
+          </itemlayout>
+          <focusedlayout width="190" height="278">
+            <control type="group">
+              <animation effect="zoom" start="100" end="110" center="84,126" time="180" tween="sine" reversible="true">Focus</animation>
+              <control type="image">
+                <left>-6</left><top>-6</top><width>180</width><height>264</height>
+                <texture border="10">frame.png</texture>
+                <colordiffuse>FFE8B44A</colordiffuse>
+              </control>
+              <control type="image">
+                <left>0</left><top>0</top><width>168</width><height>252</height>
+                <texture background="true">$INFO[ListItem.Art(poster)]</texture>
+                <aspectratio aligny="top">scale</aspectratio>
+                <fadetime>200</fadetime>
+              </control>
+              <control type="image">
+                <left>0</left><top>206</top><width>168</width><height>46</height>
+                <texture>fade_bottom.png</texture>
+              </control>
+              <control type="label">
+                <left>8</left><top>210</top><width>152</width><height>36</height>
+                <label>$INFO[ListItem.Property(rating)]</label>
+                <font>font12</font><textcolor>FFE8B44A</textcolor>
+              </control>
+              <control type="image">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <texture border="4">white.png</texture>
+                <colordiffuse>FFD8453C</colordiffuse>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+              <control type="label">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <label>LIVE</label><font>font10</font><align>center</align>
+                <textcolor>FFF4F4F6</textcolor>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Row2Title))</visible>
+      <control type="label">
+        <left>340</left><top>768</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Window.Property(Row2Title)]</label>
+        <font>font13</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+        <control type="list" id="102">
+          <left>340</left><top>810</top>
+          <width>1560</width><height>278</height>
+          <orientation>horizontal</orientation>
+          <onleft>90</onleft>
+          <onup>101</onup>
+          <ondown>103</ondown>
+          <scrolltime tween="sine">300</scrolltime>
+          <preloaditems>2</preloaditems>
+          <itemlayout width="190" height="278">
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
+              <aspectratio aligny="top">scale</aspectratio>
+              <bordersize>0</bordersize>
+              <fadetime>200</fadetime>
+            </control>
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture>white.png</texture>
+              <colordiffuse>66000000</colordiffuse>
+            </control>
+          </itemlayout>
+          <focusedlayout width="190" height="278">
+            <control type="group">
+              <animation effect="zoom" start="100" end="110" center="84,126" time="180" tween="sine" reversible="true">Focus</animation>
+              <control type="image">
+                <left>-6</left><top>-6</top><width>180</width><height>264</height>
+                <texture border="10">frame.png</texture>
+                <colordiffuse>FFE8B44A</colordiffuse>
+              </control>
+              <control type="image">
+                <left>0</left><top>0</top><width>168</width><height>252</height>
+                <texture background="true">$INFO[ListItem.Art(poster)]</texture>
+                <aspectratio aligny="top">scale</aspectratio>
+                <fadetime>200</fadetime>
+              </control>
+              <control type="image">
+                <left>0</left><top>206</top><width>168</width><height>46</height>
+                <texture>fade_bottom.png</texture>
+              </control>
+              <control type="label">
+                <left>8</left><top>210</top><width>152</width><height>36</height>
+                <label>$INFO[ListItem.Property(rating)]</label>
+                <font>font12</font><textcolor>FFE8B44A</textcolor>
+              </control>
+              <control type="image">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <texture border="4">white.png</texture>
+                <colordiffuse>FFD8453C</colordiffuse>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+              <control type="label">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <label>LIVE</label><font>font10</font><align>center</align>
+                <textcolor>FFF4F4F6</textcolor>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Row3Title))</visible>
+      <control type="label">
+        <left>340</left><top>1018</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Window.Property(Row3Title)]</label>
+        <font>font13</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+        <control type="list" id="103">
+          <left>340</left><top>1060</top>
+          <width>1560</width><height>278</height>
+          <orientation>horizontal</orientation>
+          <onleft>90</onleft>
+          <onup>102</onup>
+          <ondown>104</ondown>
+          <scrolltime tween="sine">300</scrolltime>
+          <preloaditems>2</preloaditems>
+          <itemlayout width="190" height="278">
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
+              <aspectratio aligny="top">scale</aspectratio>
+              <bordersize>0</bordersize>
+              <fadetime>200</fadetime>
+            </control>
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture>white.png</texture>
+              <colordiffuse>66000000</colordiffuse>
+            </control>
+          </itemlayout>
+          <focusedlayout width="190" height="278">
+            <control type="group">
+              <animation effect="zoom" start="100" end="110" center="84,126" time="180" tween="sine" reversible="true">Focus</animation>
+              <control type="image">
+                <left>-6</left><top>-6</top><width>180</width><height>264</height>
+                <texture border="10">frame.png</texture>
+                <colordiffuse>FFE8B44A</colordiffuse>
+              </control>
+              <control type="image">
+                <left>0</left><top>0</top><width>168</width><height>252</height>
+                <texture background="true">$INFO[ListItem.Art(poster)]</texture>
+                <aspectratio aligny="top">scale</aspectratio>
+                <fadetime>200</fadetime>
+              </control>
+              <control type="image">
+                <left>0</left><top>206</top><width>168</width><height>46</height>
+                <texture>fade_bottom.png</texture>
+              </control>
+              <control type="label">
+                <left>8</left><top>210</top><width>152</width><height>36</height>
+                <label>$INFO[ListItem.Property(rating)]</label>
+                <font>font12</font><textcolor>FFE8B44A</textcolor>
+              </control>
+              <control type="image">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <texture border="4">white.png</texture>
+                <colordiffuse>FFD8453C</colordiffuse>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+              <control type="label">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <label>LIVE</label><font>font10</font><align>center</align>
+                <textcolor>FFF4F4F6</textcolor>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Row4Title))</visible>
+      <control type="label">
+        <left>340</left><top>1268</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Window.Property(Row4Title)]</label>
+        <font>font13</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+        <control type="list" id="104">
+          <left>340</left><top>1310</top>
+          <width>1560</width><height>278</height>
+          <orientation>horizontal</orientation>
+          <onleft>90</onleft>
+          <onup>103</onup>
+          <ondown>105</ondown>
+          <scrolltime tween="sine">300</scrolltime>
+          <preloaditems>2</preloaditems>
+          <itemlayout width="190" height="278">
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
+              <aspectratio aligny="top">scale</aspectratio>
+              <bordersize>0</bordersize>
+              <fadetime>200</fadetime>
+            </control>
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture>white.png</texture>
+              <colordiffuse>66000000</colordiffuse>
+            </control>
+          </itemlayout>
+          <focusedlayout width="190" height="278">
+            <control type="group">
+              <animation effect="zoom" start="100" end="110" center="84,126" time="180" tween="sine" reversible="true">Focus</animation>
+              <control type="image">
+                <left>-6</left><top>-6</top><width>180</width><height>264</height>
+                <texture border="10">frame.png</texture>
+                <colordiffuse>FFE8B44A</colordiffuse>
+              </control>
+              <control type="image">
+                <left>0</left><top>0</top><width>168</width><height>252</height>
+                <texture background="true">$INFO[ListItem.Art(poster)]</texture>
+                <aspectratio aligny="top">scale</aspectratio>
+                <fadetime>200</fadetime>
+              </control>
+              <control type="image">
+                <left>0</left><top>206</top><width>168</width><height>46</height>
+                <texture>fade_bottom.png</texture>
+              </control>
+              <control type="label">
+                <left>8</left><top>210</top><width>152</width><height>36</height>
+                <label>$INFO[ListItem.Property(rating)]</label>
+                <font>font12</font><textcolor>FFE8B44A</textcolor>
+              </control>
+              <control type="image">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <texture border="4">white.png</texture>
+                <colordiffuse>FFD8453C</colordiffuse>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+              <control type="label">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <label>LIVE</label><font>font10</font><align>center</align>
+                <textcolor>FFF4F4F6</textcolor>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Row5Title))</visible>
+      <control type="label">
+        <left>340</left><top>1518</top>
+        <width>900</width><height>34</height>
+        <label>$INFO[Window.Property(Row5Title)]</label>
+        <font>font13</font>
+        <textcolor>FFF4F4F6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
+        <control type="list" id="105">
+          <left>340</left><top>1560</top>
+          <width>1560</width><height>278</height>
+          <orientation>horizontal</orientation>
+          <onleft>90</onleft>
+          <onup>104</onup>
+          <ondown>101</ondown>
+          <scrolltime tween="sine">300</scrolltime>
+          <preloaditems>2</preloaditems>
+          <itemlayout width="190" height="278">
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture background="true" border="2">$INFO[ListItem.Art(poster)]</texture>
+              <aspectratio aligny="top">scale</aspectratio>
+              <bordersize>0</bordersize>
+              <fadetime>200</fadetime>
+            </control>
+            <control type="image">
+              <left>0</left><top>0</top><width>168</width><height>252</height>
+              <texture>white.png</texture>
+              <colordiffuse>66000000</colordiffuse>
+            </control>
+          </itemlayout>
+          <focusedlayout width="190" height="278">
+            <control type="group">
+              <animation effect="zoom" start="100" end="110" center="84,126" time="180" tween="sine" reversible="true">Focus</animation>
+              <control type="image">
+                <left>-6</left><top>-6</top><width>180</width><height>264</height>
+                <texture border="10">frame.png</texture>
+                <colordiffuse>FFE8B44A</colordiffuse>
+              </control>
+              <control type="image">
+                <left>0</left><top>0</top><width>168</width><height>252</height>
+                <texture background="true">$INFO[ListItem.Art(poster)]</texture>
+                <aspectratio aligny="top">scale</aspectratio>
+                <fadetime>200</fadetime>
+              </control>
+              <control type="image">
+                <left>0</left><top>206</top><width>168</width><height>46</height>
+                <texture>fade_bottom.png</texture>
+              </control>
+              <control type="label">
+                <left>8</left><top>210</top><width>152</width><height>36</height>
+                <label>$INFO[ListItem.Property(rating)]</label>
+                <font>font12</font><textcolor>FFE8B44A</textcolor>
+              </control>
+              <control type="image">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <texture border="4">white.png</texture>
+                <colordiffuse>FFD8453C</colordiffuse>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+              <control type="label">
+                <left>112</left><top>8</top><width>48</width><height>22</height>
+                <label>LIVE</label><font>font10</font><align>center</align>
+                <textcolor>FFF4F4F6</textcolor>
+                <visible>String.IsEqual(ListItem.Property(live),true)</visible>
+              </control>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <left>0</left><top>0</top>
+        <animation effect="slide" start="0,0" end="0,0" time="0">Conditional</animation>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>300</width><height>1080</height>
+        <texture>white.png</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>E60A0A10</colordiffuse>
+        
+      </control>
+      <control type="image">
+        <left>0</left><top>0</top>
+        <width>300</width><height>1080</height>
+        <texture>fade_left.png</texture>
+        <aspectratio>scale</aspectratio>
+        <colordiffuse>FF000000</colordiffuse>
+        
+      </control>
+      <control type="image">
+        <left>46</left><top>44</top>
+        <width>208</width><height>58</height>
+        <texture>logo.png</texture>
+        <aspectratio>keep</aspectratio>
+        
+        
+      </control>
+        <control type="list" id="90">
+          <left>24</left><top>170</top>
+          <width>252</width><height>560</height>
+          <onright>SetFocus(101)</onright>
+          <itemlayout width="252" height="72">
+            <control type="image">
+              <left>14</left><top>18</top><width>36</width><height>36</height>
+              <texture>$INFO[ListItem.Icon]</texture>
+              <colordiffuse>FF9A9AA6</colordiffuse>
+            </control>
+            <control type="label">
+              <left>70</left><top>0</top><width>170</width><height>72</height>
+              <label>$INFO[ListItem.Label]</label>
+              <font>font13</font><textcolor>FF9A9AA6</textcolor>
+              <aligny>center</aligny>
+            </control>
+          </itemlayout>
+          <focusedlayout width="252" height="72">
+            <control type="image">
+              <left>0</left><top>6</top><width>252</width><height>60</height>
+              <texture border="8">white.png</texture>
+              <colordiffuse>22FFFFFF</colordiffuse>
+            </control>
+            <control type="image">
+              <left>0</left><top>10</top><width>4</width><height>52</height>
+              <texture>white.png</texture><colordiffuse>FFE8B44A</colordiffuse>
+            </control>
+            <control type="image">
+              <left>14</left><top>18</top><width>36</width><height>36</height>
+              <texture>$INFO[ListItem.Icon]</texture>
+              <colordiffuse>FFE8B44A</colordiffuse>
+            </control>
+            <control type="label">
+              <left>70</left><top>0</top><width>170</width><height>72</height>
+              <label>$INFO[ListItem.Label]</label>
+              <font>font13</font><textcolor>FFF4F4F6</textcolor>
+              <aligny>center</aligny>
+            </control>
+          </focusedlayout>
+        </control>
+      </control>
+      <control type="group">
+        <visible>!String.IsEmpty(Window.Property(Loading))</visible>
+      <control type="image">
+        <left>1740</left><top>40</top>
+        <width>40</width><height>40</height>
+        <texture>spinner.png</texture>
+        <aspectratio>keep</aspectratio>
+        <colordiffuse>FFE8B44A</colordiffuse>
+        <animation effect="rotate" end="360" center="auto" time="900" loop="true" condition="true">Conditional</animation>
+      </control>
+      </control>
+      <control type="label">
+        <left>340</left><top>500</top>
+        <width>1200</width><height>40</height>
+        <label>$INFO[Window.Property(Empty)]</label>
+        <font>font13</font>
+        <textcolor>FFE8B44A</textcolor>
+        <align>left</align><aligny>center</aligny>
+        <visible>!String.IsEmpty(Window.Property(Empty))</visible>
+      </control>
+  </controls>
+</window>

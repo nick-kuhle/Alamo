@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Build output (regenerate with: python3 tools/build_repo.py)
+dist/
+
+# Test artefacts
+.testprofile/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Reference material (The Crew source used for research - do not publish)
+reference/

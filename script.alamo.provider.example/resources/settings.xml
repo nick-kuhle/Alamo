@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings version="1">
+    <section id="script.alamo.provider.example">
+        <category id="general" label="Provider">
+            <group id="1">
+                <setting id="index_url" type="string" label="JSON index URL">
+                    <level>0</level>
+                    <default></default>
+                    <control type="edit" format="string">
+                        <heading>JSON index URL</heading>
+                    </control>
+                </setting>
+            </group>
+        </category>
+    </section>
+</settings>

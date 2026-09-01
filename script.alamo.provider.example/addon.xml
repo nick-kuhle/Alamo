@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.alamo.provider.example"
+       name="Alamo Provider - Example"
+       version="1.0.0"
+       provider-name="Alamo Team">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+        <import addon="script.module.requests" version="2.27.1"/>
+    </requires>
+    <extension point="xbmc.python.script" library="provider.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Example source provider for The Alamo</summary>
+        <description lang="en_GB">A template showing how to write a provider for The Alamo. It reads a JSON index that you host yourself and returns playable links to the add-on.</description>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+    </extension>
+</addon>

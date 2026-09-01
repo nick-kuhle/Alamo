@@ -1,0 +1,103 @@
+# The Alamo language file
+msgid ""
+msgstr ""
+"Project-Id-Version: plugin.video.alamo\n"
+"Report-Msgid-Bugs-To: \n"
+"Language-Team: English (UK)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_gb\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Metadata (TMDB)"
+msgstr ""
+
+msgctxt "#30011"
+msgid "TMDB API key"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Free from themoviedb.org - Settings, API, request an API key (v3 auth)."
+msgstr ""
+
+msgctxt "#30013"
+msgid "Metadata language"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Autoplay best stream"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Play the top ranked stream instead of showing the list."
+msgstr ""
+
+msgctxt "#30023"
+msgid "Maximum quality"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Allow CAM / TS releases"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Provider timeout (seconds)"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Providers"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Built-in playlist provider"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Playlist URL or file (M3U or Alamo JSON)"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Used for the Sports section. Point it at your own playlist."
+msgstr ""
+
+msgctxt "#30034"
+msgid "Refresh playlist every (minutes)"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Installed providers"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Show installed providers"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Lists every provider The Alamo can currently use."
+msgstr ""
+
+msgctxt "#30038"
+msgid "Disabled provider ids (JSON list)"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Maintenance"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Clear cache"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Clear Continue Watching"
+msgstr ""

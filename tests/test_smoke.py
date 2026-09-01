@@ -144,6 +144,48 @@ class TestRouter(unittest.TestCase):
                          '?action=clear_cache'])
 
 
+class TestAddonXML(unittest.TestCase):
+    """An unsatisfiable dependency makes Kodi refuse updates *silently*."""
+
+    PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'plugin.video.alamo', 'addon.xml')
+
+    def setUp(self):
+        import xml.etree.ElementTree as ET
+        self.root = ET.parse(self.PATH).getroot()
+
+    def test_only_dependencies_kodi_actually_ships(self):
+        allowed = {'xbmc.python', 'script.module.requests'}
+        declared = {i.get('addon') for i in self.root.iter('import')}
+        self.assertTrue(declared <= allowed,
+                        'undeclarable dependency: %s' % (declared - allowed))
+
+    def test_resolveurl_is_not_declared(self):
+        """It is imported lazily; declaring a version blocks updates for
+        anyone running an older ResolveURL."""
+        declared = {i.get('addon') for i in self.root.iter('import')}
+        self.assertNotIn('script.module.resolveurl', declared)
+        lib = os.path.join(os.path.dirname(self.PATH), 'resources', 'lib')
+        found = False
+        for root, _dirs, files in os.walk(lib):
+            for name in files:
+                if not name.endswith('.py'):
+                    continue
+                with open(os.path.join(root, name)) as handle:
+                    body = handle.read()
+                if 'import resolveurl' in body:
+                    found = True
+                    self.assertIn('ImportError', body,
+                                  '%s imports resolveurl without a guard' % name)
+        self.assertTrue(found)
+
+    def test_requests_version_is_conservative(self):
+        for item in self.root.iter('import'):
+            if item.get('addon') == 'script.module.requests':
+                major, minor = [int(p) for p in item.get('version').split('.')[:2]]
+                self.assertLessEqual((major, minor), (2, 27))
+
+
 class TestSettingsXML(unittest.TestCase):
     """The settings dialog is invisible from here, so validate it statically."""
 

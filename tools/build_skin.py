@@ -113,6 +113,7 @@ def sidebar(active_hint=''):
 {img(0, 0, 300, 1080, WHITE, 'E60A0A10')}
 {img(0, 0, 300, 1080, FADE_LEFT, 'FF000000')}
 {img(46, 44, 208, 58, 'logo.png', None, 'keep')}
+{label(46, 1006, 220, 30, 'v$INFO[Window.Property(Version)]', DIM, 'font10')}
         <control type="list" id="90">
           <left>24</left><top>170</top>
           <width>252</width><height>560</height>

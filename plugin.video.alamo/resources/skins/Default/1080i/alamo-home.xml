@@ -816,6 +816,15 @@
         
         
       </control>
+      <control type="label">
+        <left>46</left><top>1006</top>
+        <width>220</width><height>30</height>
+        <label>v$INFO[Window.Property(Version)]</label>
+        <font>font10</font>
+        <textcolor>FF9A9AA6</textcolor>
+        <align>left</align><aligny>center</aligny>
+        
+      </control>
         <control type="list" id="90">
           <left>24</left><top>170</top>
           <width>252</width><height>560</height>

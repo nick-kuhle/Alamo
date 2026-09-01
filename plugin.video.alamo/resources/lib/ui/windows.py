@@ -76,6 +76,8 @@ class BaseWindow(xbmcgui.WindowXML):
         return control
 
     def build_nav(self, active=''):
+        # so "did my update actually install?" is answerable at a glance
+        self.prop('Version', kodi.ADDON_VERSION)
         items = [listitems.menu_item(label, kodi.media('nav_%s.png' % key),
                                      key) for key, label in NAV_ITEMS]
         control = self.fill(NAV, items)

@@ -47,3 +47,13 @@ v1.0.4
 - HTTP layer with retries, pooled per-thread sessions and bot-wall detection
 - New settings: Internet Archive toggle, hide unresolvable links, source cap
 - docs/SCRAPERS.md and a site config template
+
+v1.0.5
+- Fix: the add-on declared script.module.resolveurl 5.1.0 as an optional
+  dependency. In Kodi, optional means "need not be installed" - but if it IS
+  installed it must satisfy the version, and an older ResolveURL made Kodi
+  silently refuse to install or update The Alamo while still updating the
+  repository. ResolveURL is imported lazily in code, so the declaration is gone
+- Fix: script.module.requests requirement lowered from 2.27.1 to 2.22.0
+- The installed version is now shown at the bottom of the sidebar
+- New tests assert dependencies stay minimal and ResolveURL is never declared

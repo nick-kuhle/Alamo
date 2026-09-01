@@ -56,6 +56,8 @@ def zip_addon(addon_id, source_dir, version):
                     continue
                 rel = os.path.relpath(full, os.path.dirname(source_dir))
                 archive.write(full, os.path.join(addon_id, *rel.split(os.sep)[1:]))
+    # a stable, version-less copy so documentation links never go stale
+    shutil.copy(path, os.path.join(target_dir, '%s.zip' % addon_id))
     for extra in ('icon.png', 'fanart.jpg'):
         candidate = os.path.join(source_dir, 'resources', 'media', extra)
         if os.path.exists(candidate):
@@ -171,7 +173,17 @@ def write_indexes():
     print('wrote index.html for the root and every add-on folder')
 
 
+def check_versions():
+    """Everything ships together: refuse to build a mixed-version repository."""
+    versions = {a: addon_version(a) for a in ADDONS}
+    versions[REPO_ID] = REPO_VERSION
+    if len(set(versions.values())) != 1:
+        raise SystemExit('version mismatch, bump them together: %s' % versions)
+    print('all add-ons at version', REPO_VERSION)
+
+
 def main():
+    check_versions()
     clean()
     roots = []
     for addon_id in ADDONS:

@@ -83,8 +83,11 @@ source →* your URL → *Add-ons → Install from zip →* `repository.alamo` �
 
 **Straight from a zip**
 
-Install `dist/plugin.video.alamo/plugin.video.alamo-1.0.0.zip` with
-*Install from zip file*.
+Install the always-current
+<https://nick-kuhle.github.io/Alamo/plugin.video.alamo/plugin.video.alamo.zip>
+(or the local `dist/plugin.video.alamo/plugin.video.alamo.zip`) with
+*Install from zip file*. Every add-on folder also serves a version-less
+`<addon-id>.zip` that always points at the latest build.
 
 ## First run
 

@@ -123,7 +123,7 @@ Inside it:
 The zip is already built at:
 
 ```
-alamo/dist/plugin.video.alamo/plugin.video.alamo-1.0.0.zip
+alamo/dist/plugin.video.alamo/plugin.video.alamo.zip     (always the latest build)
 ```
 
 In Kodi: **Add-ons → the box icon (top-left) → Install from zip file** →
@@ -313,7 +313,8 @@ Install path for you and anyone else, on any device:
 
 1. **Settings → File manager → Add source → \<None\>** → type
    `https://nick-kuhle.github.io/Alamo/` → name it `alamo` → OK.
-2. **Add-ons → Install from zip file → alamo → repository.alamo-1.0.0.zip**.
+2. **Add-ons → Install from zip file → alamo → repository.alamo → repository.alamo.zip**
+   (the version-less file is always the current release).
 3. **Add-ons → Install from repository → The Alamo Repository → Video add-ons → The Alamo → Install.**
 
 From then on, bumping `version` in `addon.xml`, re-running `build_repo.py` and

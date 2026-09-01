@@ -31,16 +31,17 @@ if git rev-parse "v$VERSION" >/dev/null 2>&1; then
   exit 1
 fi
 
-# 1. bump the plugin (the repository add-on follows it automatically)
+# 1. bump every add-on (the repository add-on follows the plugin automatically)
 python3 - "$VERSION" <<'PY'
 import re, sys
 version = sys.argv[1]
-path = 'plugin.video.alamo/addon.xml'
-text = open(path).read()
-text = re.sub(r'(<addon[^>]*?\sversion=")[^"]+(")', r'\g<1>%s\g<2>' % version,
-              text, count=1)
-open(path, 'w').write(text)
-print('bumped', path)
+for path in ('plugin.video.alamo/addon.xml',
+             'script.alamo.provider.example/addon.xml'):
+    text = open(path).read()
+    text = re.sub(r'(<addon[^>]*?\sversion=")[^"]+(")', r'\g<1>%s\g<2>' % version,
+                  text, count=1)
+    open(path, 'w').write(text)
+    print('bumped', path)
 PY
 
 # 2. changelog

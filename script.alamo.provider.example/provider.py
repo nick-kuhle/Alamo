@@ -30,7 +30,7 @@ ADDON = xbmcaddon.Addon()
 class ExampleProvider(Provider):
     id = 'example_index'
     name = 'Example JSON index'
-    version = '1.0.0'
+    version = '1.0.1'
     priority = 40
     capabilities = ('movie', 'episode')
 

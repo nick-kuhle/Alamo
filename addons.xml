@@ -34,7 +34,7 @@
         <platform>all</platform>
         <license>GPL-3.0-or-later</license>
     </extension>
-</addon><addon id="repository.alamo" name="The Alamo Repository" version="1.0.0" provider-name="Alamo Team">
+</addon><addon id="repository.alamo" name="The Alamo Repository" version="1.0.1" provider-name="Alamo Team">
     <extension point="xbmc.addon.repository" name="The Alamo Repository">
         <dir>
             <info compressed="false">https://nick-kuhle.github.io/Alamo/addons.xml</info>

@@ -12,3 +12,13 @@ v1.0.1
   English labels so it cannot depend on string localisation
 - New: "Enter / test TMDB API key..." button that validates the key against TMDB
 - New: first run and empty Movies/TV now offer the keyboard prompt directly
+
+v1.0.2
+- Movies, TV and Sports grids: every tile now has a title caption, and the
+  focused tile also shows the title over the artwork
+- Home: the focused row is pinned in place - the row block slides up one pitch
+  per row instead of the viewport scrolling, so no row can fall off screen
+- Home: unfocused rows fade back to 38%, and rows scrolling past the top now
+  disappear behind the hero instead of drawing over it
+- Home: row navigation uses fallback lists so empty rows are skipped
+- Category tiles use portrait posters so they are not stretched in a 2:3 frame

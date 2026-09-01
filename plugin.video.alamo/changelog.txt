@@ -57,3 +57,21 @@ v1.0.5
 - Fix: script.module.requests requirement lowered from 2.27.1 to 2.22.0
 - The installed version is now shown at the bottom of the sidebar
 - New tests assert dependencies stay minimal and ResolveURL is never declared
+
+v1.0.6
+- New: hand-written scraper framework in resources/lib/scrapers/. Declared
+  metadata (KIND/PRIORITY/CAPABILITIES) instead of grepping source text,
+  one shared title gate inherited by every scraper, automatic discovery
+- New scraper: Wikimedia Commons - public domain features as direct
+  webm/mp4. His Girl Friday returns a 4K source, Nosferatu 4.68 GB
+- New scraper: Library of Congress - National Screening Room plus the
+  site-wide film search, direct MP4 with real pixel height and duration
+- New: per-scraper diagnostics. Settings > Sources > Last source scan shows
+  counts, timings and errors for every scraper in the last scan
+- New: Settings > Sources > Built-in scrapers lists what ships
+- Fix: source scans joined each provider thread with the FULL timeout, so
+  12 providers at the default 45s could stall for nine minutes. There is
+  now one shared deadline for the whole scan
+- Matching: bracketed text is treated as version metadata, the wanted title
+  must appear within the first two words, and at most three words may
+  trail it. Drops clips and same-word-different-film false positives

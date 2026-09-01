@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons><addon id="plugin.video.alamo" name="The Alamo" version="1.0.0" provider-name="Alamo Team">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1" />
+        <import addon="script.module.requests" version="2.27.1" />
+        <import addon="script.module.resolveurl" version="5.1.0" optional="true" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="alamo.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">The Alamo - Sports, TV and Movies</summary>
+        <description lang="en_GB">A clean, fast, poster-first video add-on with just three things: Sports, TV and Movies. Browsing is powered by TMDB, playback is powered by pluggable provider add-ons and ResolveURL. No clutter, no endless menus - just a beautiful wall of artwork.</description>
+        <disclaimer lang="en_GB">The Alamo does not host, provide or scrape any content by itself. All playable links come from provider plug-ins installed by the user.</disclaimer>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+        <news>v1.0.0 - First release: Sports, TV, Movies with a full custom poster-wall UI.</news>
+    </extension>
+</addon><addon id="script.alamo.provider.example" name="Alamo Provider - Example" version="1.0.0" provider-name="Alamo Team">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1" />
+        <import addon="script.module.requests" version="2.27.1" />
+    </requires>
+    <extension point="xbmc.python.script" library="provider.py">
+        <provides>executable</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Example source provider for The Alamo</summary>
+        <description lang="en_GB">A template showing how to write a provider for The Alamo. It reads a JSON index that you host yourself and returns playable links to the add-on.</description>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+    </extension>
+</addon><addon id="repository.alamo" name="The Alamo Repository" version="1.0.0" provider-name="Alamo Team">
+    <extension point="xbmc.addon.repository" name="The Alamo Repository">
+        <dir>
+            <info compressed="false">https://nick-kuhle.github.io/Alamo/addons.xml</info>
+            <checksum>https://nick-kuhle.github.io/Alamo/addons.xml.md5</checksum>
+            <datadir zip="true">https://nick-kuhle.github.io/Alamo/</datadir>
+        </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">Install and update The Alamo</summary>
+        <description lang="en_GB">Repository for The Alamo video add-on and its source providers.</description>
+        <platform>all</platform>
+        <license>GPL-3.0-or-later</license>
+    </extension>
+</addon></addons>

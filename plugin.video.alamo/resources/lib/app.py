@@ -72,8 +72,9 @@ def catalogue(media_type):
     section = 'movies' if media_type == 'movie' else 'tv'
     label = 'Movies' if media_type == 'movie' else 'TV Shows'
     if not tmdb.has_key():
-        kodi.ok('Add your free TMDB API key in Settings to browse %s.' % label)
-        return 'settings'
+        from . import router
+        if not router.ask_tmdb_key(prompt_first=True):
+            return 'home'
     rows = tmdb.MOVIE_ROWS if media_type == 'movie' else tmdb.TV_ROWS
     genres = tmdb.MOVIE_GENRES if media_type == 'movie' else tmdb.TV_GENRES
 
@@ -170,6 +171,13 @@ SECTIONS = {
 
 
 def run(start='home'):
+    # First run: no key means empty Movies/TV, so offer the keyboard straight
+    # away rather than sending people hunting through the settings dialog.
+    if not tmdb.has_key() and not kodi.setting_bool('tmdb_prompted', False):
+        kodi.set_setting('tmdb_prompted', 'true')
+        from . import router
+        router.ask_tmdb_key(prompt_first=True)
+
     current = start
     guard = 0
     while current and guard < 100:

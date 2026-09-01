@@ -118,6 +118,30 @@ def _play(params, handle):
     xbmcplugin.setResolvedUrl(handle, False, xbmcgui.ListItem())
 
 
+def ask_tmdb_key(prompt_first=False):
+    """Ask for a TMDB key with the on-screen keyboard, verify it, save it.
+
+    This is the fallback path: it works even if the settings dialog is
+    unavailable, and it validates the key against TMDB before saving.
+    """
+    if prompt_first:
+        if not kodi.yesno('The Alamo needs a free TMDB API key to show Movies '
+                          'and TV.\n\nGet one at themoviedb.org (Settings > '
+                          'API > API Key v3 auth).\n\nEnter it now?'):
+            return False
+    key = kodi.keyboard('TMDB API key (v3 auth)', kodi.setting('tmdb_key', ''))
+    if not key:
+        return False
+    ok, message = tmdb.verify_key(key)
+    if ok:
+        kodi.set_setting('tmdb_key', key)
+        cache.clear()
+        kodi.notify('TMDB key saved')
+        return True
+    kodi.ok('%s\n\nNothing was saved.' % message, 'TMDB key not accepted')
+    return False
+
+
 def dispatch(argv):
     handle = int(argv[1]) if len(argv) > 1 and argv[1].lstrip('-').isdigit() else -1
     params = dict(parse_qsl(argv[2][1:])) if len(argv) > 2 else {}
@@ -130,6 +154,10 @@ def dispatch(argv):
 
     if action == 'list':
         _widget(handle, params.get('kind', ''), int(params.get('page', 1) or 1))
+        return
+
+    if action == 'set_tmdb':
+        ask_tmdb_key()
         return
 
     if action == 'clear_cache':

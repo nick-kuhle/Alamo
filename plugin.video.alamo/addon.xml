@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.alamo"
        name="The Alamo"
-       version="1.0.0"
+       version="1.0.1"
        provider-name="Alamo Team">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
@@ -21,6 +21,6 @@
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
         </assets>
-        <news>v1.0.0 - First release: Sports, TV, Movies with a full custom poster-wall UI.</news>
+        <news>v1.0.1 - Fixed the add-on settings dialog (TMDB API key was not showing) and added an in-app key prompt with validation.</news>
     </extension>
 </addon>

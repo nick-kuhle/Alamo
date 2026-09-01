@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Headless smoke tests. Run: python3 tests/test_smoke.py"""
 import os
+import re
 import sys
 import shutil
 import unittest
@@ -141,6 +142,58 @@ class TestRouter(unittest.TestCase):
     def test_dispatch_clear_cache(self):
         router.dispatch(['plugin://plugin.video.alamo/', '1',
                          '?action=clear_cache'])
+
+
+class TestSettingsXML(unittest.TestCase):
+    """The settings dialog is invisible from here, so validate it statically."""
+
+    PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'plugin.video.alamo', 'resources', 'settings.xml')
+
+    def setUp(self):
+        import xml.etree.ElementTree as ET
+        self.tree = ET.parse(self.PATH)
+
+    def test_parses(self):
+        self.assertEqual(self.tree.getroot().tag, 'settings')
+
+    def test_every_setting_id_used_in_code_exists(self):
+        declared = {s.get('id') for s in self.tree.iter('setting')}
+        lib = os.path.join(os.path.dirname(self.PATH), 'lib')
+        used = set()
+        pattern = re.compile(r"setting(?:_bool|_int)?\(\s*'([a-z0-9_]+)'")
+        for root, _dirs, files in os.walk(lib):
+            for name in files:
+                if name.endswith('.py'):
+                    with open(os.path.join(root, name)) as handle:
+                        used |= set(pattern.findall(handle.read()))
+        missing = used - declared
+        self.assertFalse(missing, 'settings.xml is missing: %s' % missing)
+
+    def test_no_invalid_level_elements(self):
+        # <level> only accepts 0-3; 4 makes Kodi reject the file
+        for level in self.tree.iter('level'):
+            self.assertIn(level.text, ('0', '1', '2', '3'))
+
+    def test_action_settings_point_at_real_routes(self):
+        import xml.etree.ElementTree as ET  # noqa: F401
+        actions = [s.get('action') or '' for s in self.tree.iter('setting')
+                   if s.get('type') == 'action']
+        self.assertTrue(actions)
+        for action in actions:
+            self.assertIn('plugin://plugin.video.alamo/?action=', action)
+            name = action.split('action=')[1].rstrip(')')
+            self.assertIn(name, ('set_tmdb', 'providers', 'clear_cache',
+                                 'clear_progress'))
+
+
+class TestTMDBKeyValidation(unittest.TestCase):
+    def test_rejects_obvious_rubbish(self):
+        ok, message = tmdb.verify_key('')
+        self.assertFalse(ok)
+        ok, message = tmdb.verify_key('not a key')
+        self.assertFalse(ok)
+        self.assertIn('v3', message)
 
 
 def tearDownModule():

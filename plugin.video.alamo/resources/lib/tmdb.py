@@ -46,6 +46,27 @@ def has_key():
     return bool(api_key())
 
 
+def verify_key(key):
+    """Return (ok, message) for a candidate API key."""
+    key = (key or '').strip()
+    if not key:
+        return False, 'No key entered'
+    if len(key) < 20 or ' ' in key:
+        return False, ('That does not look like a v3 API key (32 hex '
+                       'characters). Use the "API Key (v3 auth)" value, not '
+                       'the long read access token.')
+    try:
+        response = SESSION.get('%s/configuration' % BASE,
+                               params={'api_key': key}, timeout=20)
+    except Exception as exc:
+        return False, 'Could not reach TMDB: %s' % exc
+    if response.status_code == 200:
+        return True, 'Key accepted'
+    if response.status_code == 401:
+        return False, 'TMDB rejected that key (401)'
+    return False, 'TMDB returned HTTP %s' % response.status_code
+
+
 def _get(path, **params):
     key = api_key()
     if not key:

@@ -25,7 +25,7 @@ _REPORT = {'rows': [], 'started': 0.0, 'elapsed': 0.0}
 _LOCK = threading.Lock()
 
 #: modules that are infrastructure, not scrapers
-_SKIP = frozenset({'base', '__init__'})
+_SKIP = frozenset({'base', 'torrents', '__init__'})
 
 
 def _package_dir():
@@ -81,16 +81,98 @@ def discover(refresh=False):
 
 
 def enabled(capability=None):
-    """Discovered scrapers minus the ones the user switched off."""
+    """Discovered scrapers, minus user-disabled and minus tripped breakers."""
     import json
     try:
         off = set(json.loads(kodi.setting('disabled_providers', '[]') or '[]'))
     except ValueError:
         off = set()
-    items = [s for s in discover() if s.ID not in off]
+    items = [s for s in discover()
+             if s.ID not in off and not is_tripped(s.ID)]
     if capability:
         items = [s for s in items if capability in s.CAPABILITIES]
     return items
+
+
+# ---------------------------------------------------------------------------
+# circuit breaker
+#
+# The Crew marks a dead site by hand: a maintainer sets defunct=True and ships
+# a release. Until then every user pays that site's full timeout on every
+# single scan. Here a scraper that fails repeatedly trips its own breaker and
+# is skipped until a cooldown expires, then gets one probe to recover.
+# ---------------------------------------------------------------------------
+
+#: consecutive failures before a scraper is skipped
+TRIP_AFTER = 3
+#: seconds a tripped scraper stays skipped before one retry is allowed
+COOLDOWN = 30 * 60
+
+_HEALTH = {'data': None}
+
+
+def _health_path():
+    return os.path.join(kodi.ensure_profile(), 'scraper_health.json')
+
+
+def health(refresh=False):
+    import json
+    if _HEALTH['data'] is None or refresh:
+        try:
+            with open(_health_path()) as handle:
+                _HEALTH['data'] = json.load(handle)
+        except Exception:
+            _HEALTH['data'] = {}
+    return _HEALTH['data']
+
+
+def _save_health():
+    import json
+    try:
+        with open(_health_path(), 'w') as handle:
+            json.dump(_HEALTH['data'] or {}, handle)
+    except Exception as exc:
+        kodi.log('could not persist scraper health: %s' % exc)
+
+
+def note_result(scraper_id, ok):
+    """Record one scrape outcome and trip or reset the breaker."""
+    import time
+    data = health()
+    entry = data.setdefault(scraper_id, {'fails': 0, 'tripped_at': 0})
+    if ok:
+        if entry['fails'] or entry['tripped_at']:
+            kodi.log('scraper %s recovered' % scraper_id)
+        entry['fails'] = 0
+        entry['tripped_at'] = 0
+    else:
+        entry['fails'] += 1
+        if entry['fails'] >= TRIP_AFTER and not entry['tripped_at']:
+            entry['tripped_at'] = time.time()
+            kodi.log('scraper %s tripped after %d failures'
+                     % (scraper_id, entry['fails']))
+    _save_health()
+
+
+def is_tripped(scraper_id):
+    """True while a scraper is being skipped. Expiry allows one probe."""
+    import time
+    entry = health().get(scraper_id) or {}
+    tripped_at = entry.get('tripped_at') or 0
+    if not tripped_at:
+        return False
+    if time.time() - tripped_at >= COOLDOWN:
+        # cooldown over: let it through once, breaker re-trips if it fails
+        entry['tripped_at'] = 0
+        entry['fails'] = TRIP_AFTER - 1
+        _save_health()
+        return False
+    return True
+
+
+def reset_health():
+    _HEALTH['data'] = {}
+    _save_health()
 
 
 def find(scraper_id):
@@ -114,6 +196,7 @@ def begin_report():
 
 def record(scraper_id, name, count, elapsed, error=''):
     import time
+    note_result(scraper_id, not error)
     with _LOCK:
         _REPORT['rows'].append({
             'id': scraper_id, 'name': name, 'count': count,

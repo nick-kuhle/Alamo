@@ -247,6 +247,160 @@ class TestBuiltinScrapers(unittest.TestCase):
         self.assertTrue(any(r['error'] for r in rows))
 
 
+class TestTorrentInfrastructure(unittest.TestCase):
+    """Alamo ships no torrent scrapers; this is the toolkit for writing one."""
+
+    HEX = 'C9E15763F722F23E98A29DECDFAE341B98D53056'
+    LOW = HEX.lower()
+
+    def setUp(self):
+        from resources.lib.scrapers import torrents
+        self.t = torrents
+
+    def test_info_hash_accepts_every_form_indexers_emit(self):
+        self.assertEqual(self.t.info_hash(self.HEX), self.LOW)
+        self.assertEqual(self.t.info_hash(self.LOW), self.LOW)
+        self.assertEqual(self.t.info_hash('ZHQVOY7XELZD5GFCTXWN7LRUDOMNKMCW'),
+                         self.LOW)   # base32
+        self.assertEqual(
+            self.t.info_hash('magnet:?xt=urn:btih:%s&dn=X' % self.HEX), self.LOW)
+        self.assertEqual(self.t.info_hash('https://x/t/%s/n' % self.LOW), self.LOW)
+        self.assertEqual(self.t.info_hash('not a hash'), '')
+
+    def test_magnet_is_idempotent_and_has_trackers(self):
+        uri = self.t.magnet(self.HEX, 'My Movie')
+        self.assertIn('btih:' + self.LOW, uri)
+        self.assertIn('dn=My+Movie', uri)
+        self.assertIn('tr=', uri)
+        self.assertEqual(self.t.info_hash(self.t.magnet(uri)), self.LOW)
+
+    def test_seeders_survives_indexer_junk(self):
+        got = [self.t.seeders(v)
+               for v in ('', '-', 'n/a', '1,234', 42, None, '12 seeds')]
+        self.assertEqual(got, [0, 0, 0, 1234, 42, 0, 12])
+
+    def test_dedupe_merges_by_hash_and_sums_seeders(self):
+        rows = [
+            {'url': self.t.magnet(self.HEX), 'quality': '720p', 'size': 1.0,
+             'seeders': 10},
+            {'url': self.t.magnet(self.HEX), 'quality': '1080p', 'size': 8.0,
+             'seeders': 5},
+            {'url': 'https://other/x', 'quality': 'SD', 'size': 0.5},
+        ]
+        merged = self.t.dedupe(rows)
+        self.assertEqual(len(merged), 2)
+        best = [r for r in merged if r.get('hash') == self.LOW][0]
+        self.assertEqual(best['quality'], '1080p')   # better copy won
+        self.assertEqual(best['seeders'], 15)        # evidence combined
+
+    def test_pack_detection_handles_dot_separated_names(self):
+        """The classic bug: \\s+ never matches "Complete.Series"."""
+        cases = [
+            ('Show.S02.1080p.WEB-DL', 2, True),
+            ('Show.S02.1080p.WEB-DL', 3, False),
+            ('Show.S01-S05.COMPLETE', 3, True),
+            ('Show.Complete.Series.1080p', 9, True),
+            ('Show.Seasons.1.to.4', 2, True),
+            ('Show.Seasons.1.to.4', 7, False),
+            ('Show Season 3 1080p', 3, True),
+            ('Show.S02E07.1080p', 2, False),      # single episode
+        ]
+        for name, season, expected in cases:
+            self.assertEqual(self.t.is_pack(name, season), expected, name)
+
+    def test_pick_file_out_of_a_pack(self):
+        files = [
+            {'path': 'Show/Sample/sample.mkv', 'bytes': 9e6},
+            {'path': 'Show/Show.S02E07.1080p.mkv', 'bytes': 2.1e9},
+            {'path': 'Show/Show.S02E08.1080p.mkv', 'bytes': 2.2e9},
+            {'path': 'Show/Subs/eng.srt', 'bytes': 1e5},
+        ]
+        self.assertIn('S02E07', self.t.pick_file(files, 2, 7)['path'])
+        self.assertIsNone(self.t.pick_file(files, 2, 99))
+        self.assertIn('S02E08', self.t.pick_file(files)['path'])
+
+    def test_torrent_scraper_builds_a_gated_source(self):
+        from resources.lib.scrapers.torrents import TorrentScraper
+
+        class Indexer(TorrentScraper):
+            ID, NAME = 'idx', 'Indexer'
+            MIN_SEEDERS = 5
+
+        idx = Indexer()
+        good = idx.torrent_source('Movie.2024.1080p.WEB-DL', self.HEX,
+                                  size=6.2, seeds=40)
+        self.assertEqual(good['hash'], self.LOW)
+        self.assertEqual(good['quality'], '1080p')
+        self.assertFalse(good['direct'])
+        self.assertTrue(good['debrid_only'])
+        self.assertIn('40 seeders', good['info'])
+        # below MIN_SEEDERS
+        self.assertIsNone(idx.torrent_source('X.1080p', self.HEX, seeds=1))
+
+
+class TestAliases(unittest.TestCase):
+    """Alternate titles, without which non-English releases are invisible."""
+
+    def setUp(self):
+        from resources.lib.scrapers.base import Scraper
+        self.gate = Scraper()
+
+    def test_alias_matches_when_primary_title_does_not(self):
+        item = {'title': 'Amelie', 'year': 2001,
+                'aliases': ["Le Fabuleux Destin d'Amelie Poulain"]}
+        self.assertTrue(self.gate.accepts(
+            "Le Fabuleux Destin d'Amelie Poulain (2001)", item))
+
+    def test_no_aliases_still_works(self):
+        self.assertTrue(self.gate.accepts(
+            'Nosferatu (1922)', {'title': 'Nosferatu', 'year': 1922}))
+
+    def test_alias_does_not_open_the_gate_to_anything(self):
+        item = {'title': 'The Kid', 'year': 1921, 'aliases': ['Le Gosse']}
+        self.assertFalse(self.gate.accepts('The Wolf and The Kid (1921)', item))
+
+
+class TestCircuitBreaker(unittest.TestCase):
+    """The Crew needs a maintainer to hand-set defunct=True and ship."""
+
+    def setUp(self):
+        from resources.lib import scrapers
+        self.s = scrapers
+        scrapers.reset_health()
+
+    def tearDown(self):
+        self.s.reset_health()
+
+    def test_trips_only_after_repeated_failure(self):
+        for _ in range(self.s.TRIP_AFTER - 1):
+            self.s.record('x', 'X', 0, 0.1, 'down')
+            self.assertFalse(self.s.is_tripped('x'))
+        self.s.record('x', 'X', 0, 0.1, 'down')
+        self.assertTrue(self.s.is_tripped('x'))
+
+    def test_success_resets(self):
+        self.s.record('x', 'X', 0, 0.1, 'down')
+        self.s.record('x', 'X', 3, 0.1)
+        self.assertFalse(self.s.is_tripped('x'))
+
+    def test_cooldown_expiry_allows_one_probe(self):
+        import time
+        for _ in range(self.s.TRIP_AFTER):
+            self.s.record('x', 'X', 0, 0.1, 'down')
+        self.assertTrue(self.s.is_tripped('x'))
+        self.s.health()['x']['tripped_at'] = time.time() - self.s.COOLDOWN - 1
+        self.assertFalse(self.s.is_tripped('x'))
+
+    def test_tripped_scrapers_are_excluded_from_scans(self):
+        found = self.s.discover()
+        if not found:
+            return
+        target = found[0].ID
+        for _ in range(self.s.TRIP_AFTER):
+            self.s.record(target, target, 0, 0.1, 'down')
+        self.assertNotIn(target, [s.ID for s in self.s.enabled()])
+
+
 class TestAddonXML(unittest.TestCase):
     """An unsatisfiable dependency makes Kodi refuse updates *silently*."""
 

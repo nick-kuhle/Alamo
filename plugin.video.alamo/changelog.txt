@@ -75,3 +75,22 @@ v1.0.6
 - Matching: bracketed text is treated as version metadata, the wanted title
   must appear within the first two words, and at most three words may
   trail it. Drops clips and same-word-different-film false positives
+
+v1.0.7
+- New: resources/lib/scrapers/torrents.py - infrastructure for anyone
+  writing an indexer scraper. Info-hash normalisation (hex, base32, magnet
+  URIs, hashes embedded in URLs all collapse to one canonical form),
+  idempotent magnet building with trackers, tolerant seeder parsing,
+  dedupe by info hash that sums seeders across indexers, season/series
+  pack detection, and pack file selection by episode marker
+- New: TorrentScraper base class with seeder gating and debrid_only
+- New: alternate titles. Scraper.accepts() now tries every alias, so
+  non-English releases stop being invisible
+- New: circuit breaker. Three consecutive failures skips a scraper for 30
+  minutes, then one probe to recover. No maintainer or release needed,
+  unlike hand-setting defunct=True
+- New: docs/CREW-TEARDOWN.md - how The Crew's engine is built and the
+  reasoning behind every place Alamo diverges
+- Fix: pack regexes used \\s, which never matches dot-separated release
+  names, so 'Complete.Series' was not detected as a pack
+- 69 tests

@@ -127,6 +127,24 @@ def episode_numbers(name):
     return None, None
 
 
+def matches_episode_marker(name, season, episode):
+    """True when ``name`` carries this exact SxxEyy / 2x07 / Season 2 Episode 7.
+
+    Used to pick the right file out of a season pack, where the show title is
+    often absent from the filename entirely, so only the marker can be trusted.
+    """
+    if season is None or episode is None:
+        return False
+    found_season, found_episode = episode_numbers(name or '')
+    if found_season is None:
+        return False
+    try:
+        return (int(found_season) == int(season)
+                and int(found_episode) == int(episode))
+    except (TypeError, ValueError):
+        return False
+
+
 def years(name):
     return [int(y) for y in YEAR_RE.findall(name or '')]
 

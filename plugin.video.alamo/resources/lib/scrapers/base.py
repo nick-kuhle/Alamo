@@ -172,9 +172,26 @@ class Scraper(object):
         wanted = item.get('title') or ''
         if not wanted:
             return False
+
+        # Try the primary title, then every alternate title TMDB knows.
+        # Without this, "Le Fabuleux Destin d'Amelie Poulain" never matches a
+        # search for "Amelie", and every non-English release is invisible.
+        candidates = [wanted]
+        for alias in (item.get('aliases') or []):
+            alias = (alias or '').strip()
+            if alias and alias.lower() != wanted.lower():
+                candidates.append(alias)
+
         if media_type == 'episode':
-            return parsing.matches_episode(
-                found_title, wanted, item.get('season'), item.get('episode'))
+            return any(parsing.matches_episode(found_title, name,
+                                               item.get('season'),
+                                               item.get('episode'))
+                       for name in candidates)
+
+        return any(self._accepts_title(found_title, name, item.get('year'))
+                   for name in candidates)
+
+    def _accepts_title(self, found_title, wanted, year):
 
         if parsing.containment(found_title, wanted) < 0.8:
             return False
@@ -199,7 +216,6 @@ class Scraper(object):
             trailing = len(found_tokens) - (start + len(wanted_tokens))
             if trailing > 3:
                 return False
-        year = item.get('year')
         if year:
             found_years = parsing.years(found_title)
             if found_years and not any(abs(int(y) - int(year)) <= 1

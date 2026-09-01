@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.alamo"
        name="The Alamo"
-       version="1.0.6"
+       version="1.0.7"
        provider-name="Alamo Team">
     <requires>
         <!-- Keep this list as small and as low-versioned as possible.
@@ -26,6 +26,6 @@
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
         </assets>
-        <news>v1.0.6 - Built-in hand-written scrapers: Wikimedia Commons and Library of Congress, both public domain. New scraper framework with shared title matching and per-scraper diagnostics.</news>
+        <news>v1.0.7 - Torrent and pack infrastructure for scraper authors, alternate-title matching, and a circuit breaker that skips dead sites automatically.</news>
     </extension>
 </addon>

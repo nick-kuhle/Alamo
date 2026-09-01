@@ -196,6 +196,84 @@ class TestTMDBKeyValidation(unittest.TestCase):
         self.assertIn('v3', message)
 
 
+class TestNavigationWiring(unittest.TestCase):
+    """Guard the frontend contracts that are easy to break and hard to see."""
+
+    def test_search_is_not_in_the_rail(self):
+        from resources.lib.ui import windows
+        keys = [k for k, _label in windows.NAV_ITEMS]
+        self.assertNotIn('search', keys)
+        for expected in ('home', 'movies', 'tv', 'sports', 'mylist', 'settings'):
+            self.assertIn(expected, keys)
+
+    def test_every_section_is_openable(self):
+        from resources.lib import app
+        for name in ('movies', 'tv', 'sports', 'search', 'mylist'):
+            self.assertIn(name, app.SECTIONS)
+
+    def test_depth_tracking_starts_at_zero(self):
+        from resources.lib import app
+        self.assertEqual(app.depth(), 0)
+
+    def test_parallel_helper_keeps_order(self):
+        from resources.lib import app
+        jobs = [(lambda v=i: v * 2) for i in range(12)]
+        self.assertEqual(app._parallel(jobs), [i * 2 for i in range(12)])
+
+
+class TestSkinXML(unittest.TestCase):
+    SKIN = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        'plugin.video.alamo', 'resources', 'skins', 'Default')
+
+    def _read(self, name):
+        with open(os.path.join(self.SKIN, '1080i', name)) as handle:
+            return handle.read()
+
+    def test_all_windows_parse(self):
+        import xml.etree.ElementTree as ET
+        import glob
+        files = glob.glob(os.path.join(self.SKIN, '1080i', '*.xml'))
+        self.assertEqual(len(files), 4)
+        for path in files:
+            ET.parse(path)
+
+    def test_every_texture_referenced_exists(self):
+        import re
+        import glob
+        media = os.path.join(self.SKIN, 'media')
+        available = set(os.listdir(media))
+        for path in glob.glob(os.path.join(self.SKIN, '1080i', '*.xml')):
+            with open(path) as handle:
+                body = handle.read()
+            for texture in re.findall(r'<texture[^>]*>([^<$][^<]*)</texture>', body):
+                self.assertIn(texture.strip(), available,
+                              '%s references missing texture %s'
+                              % (os.path.basename(path), texture))
+
+    def test_rounded_corners_on_every_tile(self):
+        for name in ('alamo-home.xml', 'alamo-grid.xml'):
+            self.assertIn('corner_mask.png', self._read(name))
+
+    def test_focus_ring_is_scoped_to_the_focused_row(self):
+        home = self._read('alamo-home.xml')
+        # every row: ring/title shown only while that row has focus, and its
+        # selected tile is dimmed like the others while it does not
+        for cid in (101, 102, 103, 104, 105):
+            self.assertIn('<visible>Control.HasFocus(%d)</visible>' % cid, home)
+            self.assertIn('<visible>!Control.HasFocus(%d)</visible>' % cid, home)
+        grid = self._read('alamo-grid.xml')
+        self.assertIn('<visible>Control.HasFocus(50)</visible>', grid)
+
+    def test_loading_screen_present_in_every_browse_window(self):
+        for name in ('alamo-home.xml', 'alamo-grid.xml', 'alamo-detail.xml'):
+            self.assertIn('Window.Property(LoadingText)', self._read(name))
+
+    def test_grid_has_a_search_button(self):
+        grid = self._read('alamo-grid.xml')
+        self.assertIn('id="61"', grid)
+        self.assertIn('Window.Property(SearchLabel)', grid)
+
+
 def tearDownModule():
     shutil.rmtree(kodistubs.PROFILE, ignore_errors=True)
 

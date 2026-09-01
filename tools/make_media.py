@@ -67,6 +67,41 @@ def spinner():
     save(image, os.path.join(SKIN_MEDIA, 'spinner.png'))
 
 
+def corner_mask():
+    """Rounded corners for artwork.
+
+    Kodi cannot clip a texture to a rounded rect, so we lay a 9-slice overlay on
+    top of every poster: transparent in the middle, background-coloured in the
+    corners. Against our flat background it reads as a rounded thumbnail and
+    matches the focus ring exactly.
+    """
+    size, radius = 64, 12
+    bg = (7, 7, 11, 255)
+    image = Image.new('RGBA', (size, size), bg)
+    mask = Image.new('L', (size * 4, size * 4), 0)
+    ImageDraw.Draw(mask).rounded_rectangle(
+        [0, 0, size * 4 - 1, size * 4 - 1], radius=radius * 4, fill=255)
+    mask = mask.resize((size, size), Image.LANCZOS)
+    image.putalpha(Image.eval(mask, lambda a: 255 - a))
+    save(image, os.path.join(SKIN_MEDIA, 'corner_mask.png'))
+
+
+def search_tile():
+    """Artwork for the Search tile that opens each section."""
+    width, height = 500, 750
+    image = Image.new('RGB', (width, height), (12, 12, 18))
+    draw = ImageDraw.Draw(image)
+    for y in range(height):
+        shade = int(12 + 22 * (y / height))
+        draw.line([(0, y), (width, y)], fill=(shade, shade, shade + 8))
+    cx, cy, r = width / 2, height / 2 - 30, 96
+    draw.ellipse([cx - r, cy - r, cx + r, cy + r], outline=GOLD, width=16)
+    draw.line([(cx + r * 0.72, cy + r * 0.72), (cx + r * 1.6, cy + r * 1.6)],
+              fill=GOLD, width=20)
+    image = image.filter(ImageFilter.SMOOTH)
+    save(image, os.path.join(MEDIA, 'search_tile.png'))
+
+
 def check():
     image = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
@@ -110,7 +145,10 @@ def _icon(draw_fn, name, size=96):
     image = Image.new('RGBA', (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     draw_fn(draw, size)
+    # resources/media -> used as ListItem art (absolute paths from Python)
+    # skins/.../media -> used as <texture> names inside the window XML
     save(image, os.path.join(MEDIA, name))
+    save(image, os.path.join(SKIN_MEDIA, name))
 
 
 def nav_icons():
@@ -192,9 +230,11 @@ def main():
     frame()
     spinner()
     check()
+    corner_mask()
     logo()
     nav_icons()
     sports_tile()
+    search_tile()
 
 
 if __name__ == '__main__':

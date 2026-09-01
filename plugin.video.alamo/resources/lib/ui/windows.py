@@ -22,17 +22,19 @@ GRID = 50
 SEASONS = 40
 EPISODES = 41
 RECOMMENDED = 42
+SEARCH_BTN = 61
 BTN_PLAY = 31
 BTN_TRAILER = 32
 BTN_MYLIST = 33
 SOURCES = 50
 
+# Search lives at the top of each section now, not in the rail: you almost
+# always want to search *within* Movies, TV or Sports.
 NAV_ITEMS = [
     ('home', 'Home'),
     ('movies', 'Movies'),
     ('tv', 'TV'),
     ('sports', 'Sports'),
-    ('search', 'Search'),
     ('mylist', 'My List'),
     ('settings', 'Settings'),
 ]
@@ -58,7 +60,9 @@ class BaseWindow(xbmcgui.WindowXML):
     def prop(self, key, value=''):
         self.setProperty(key, value if value is not None else '')
 
-    def busy(self, on=True):
+    def busy(self, on=True, text=''):
+        if on:
+            self.prop('LoadingText', text or getattr(self, 'title', '') or '')
         self.prop('Loading', 'true' if on else '')
 
     def fill(self, control_id, items):
@@ -93,23 +97,40 @@ class BaseWindow(xbmcgui.WindowXML):
             if item:
                 self.navigate(item.getProperty('action'))
 
+    #: how deep we let nested windows stack before unwinding instead
+    MAX_DEPTH = 6
+
     def navigate(self, action):
-        if not action:
+        """Open the next section *on top of* this window.
+
+        Closing first and opening after would show Kodi's own UI for as long as
+        the next section takes to load. Opening nested means an Alamo window is
+        on screen the entire time - the new one paints its loading screen
+        immediately and fills in behind it.
+        """
+        if not action or action == getattr(self, 'section', None):
             return
         if action == 'settings':
             kodi.open_settings()
             return
-        self.next_window = action
-        self.close()
+        from .. import app
+        if app.depth() >= self.MAX_DEPTH:
+            # too deep - fall back to unwinding to the root and going from there
+            self.next_window = action
+            self.close()
+            return
+        app.open_section(action)
 
 
 class HomeWindow(BaseWindow):
     xml = 'alamo-home.xml'
 
+    section = 'home'
+
     def onInit(self):
         self.prop('Heading', 'The Alamo')
         self.build_nav('home')
-        self.busy(True)
+        self.busy(True, 'Loading The Alamo')
         _thread(self._load)
 
     def _rows(self):
@@ -193,7 +214,8 @@ class GridWindow(BaseWindow):
         self.title = kwargs.get('title', '')
         self.loader = kwargs.get('loader')     # callable(page) -> (items, info)
         self.section = kwargs.get('section', '')
-        self.chips = kwargs.get('chips') or []  # [(label, loader), ...]
+        self.search_type = kwargs.get('search_type', '')   # movie / tv / sports
+        self.search_label = kwargs.get('search_label', '')
         self.entries = []
         self.page = 1
         self.total_pages = 1
@@ -201,8 +223,9 @@ class GridWindow(BaseWindow):
 
     def onInit(self):
         self.prop('Heading', self.title)
+        self.prop('SearchLabel', self.search_label)
         self.build_nav(self.section)
-        self.busy(True)
+        self.busy(True, 'Loading %s' % self.title)
         _thread(self._load, 1)
 
     def _load(self, page):
@@ -250,7 +273,16 @@ class GridWindow(BaseWindow):
             if 0 <= position < len(self.entries):
                 open_item(self.entries[position])
             return
+        if control_id == SEARCH_BTN:
+            self.do_search()
+            return
         BaseWindow.onClick(self, control_id)
+
+    def do_search(self):
+        if not self.search_type:
+            return
+        from .. import app
+        app.search(self.search_type)
 
 
 class DetailWindow(BaseWindow):
@@ -270,7 +302,7 @@ class DetailWindow(BaseWindow):
         self.prop('Fanart', entry.get('fanart') or entry.get('backdrop', ''))
         self.prop('Plot', entry.get('plot', ''))
         self.prop('IsTV', 'true' if entry.get('type') == 'tv' else '')
-        self.busy(True)
+        self.busy(True, entry.get('title', ''))
         _thread(self._load)
 
     def _load(self):

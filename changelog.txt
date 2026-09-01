@@ -22,3 +22,15 @@ v1.0.2
   disappear behind the hero instead of drawing over it
 - Home: row navigation uses fallback lists so empty rows are skipped
 - Category tiles use portrait posters so they are not stretched in a 2:3 frame
+
+v1.0.3
+- Sections now open nested instead of closing first, so Kodi's own menu is never
+  visible between two Alamo screens
+- Full-screen branded loading screen with logo, spinner and "Loading Movies"
+- Category tiles build their artwork on a worker thread, 8 requests in parallel,
+  so a section opens instantly and fills in
+- Search removed from the rail: every section has its own Search tile and a
+  Search button in the header (Movies / TV / Sports search their own content)
+- Thumbnails have rounded corners matching the focus ring
+- The focus ring, title overlay and highlight now appear only on the row that
+  actually has focus - previously every row showed its selected tile as focused

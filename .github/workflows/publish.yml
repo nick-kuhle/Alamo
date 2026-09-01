@@ -1,9 +1,11 @@
 name: Build and publish Kodi repository
 
+# Every push to main republishes gh-pages, so the source tree, the zips and
+# addons.xml can never drift apart. Tags additionally cut a GitHub Release.
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
+    tags: ['v*']
   workflow_dispatch:
 
 permissions:
@@ -34,6 +36,27 @@ jobs:
               print('ok', f)
           PY
 
+      - name: Check the version was bumped
+        # A published zip must never change content under a version already
+        # released, or Kodi will keep serving its cached copy.
+        run: |
+          python3 - <<'PY'
+          import urllib.request, xml.etree.ElementTree as ET, sys
+          local = ET.parse('plugin.video.alamo/addon.xml').getroot().get('version')
+          try:
+              live_xml = urllib.request.urlopen(
+                  'https://nick-kuhle.github.io/Alamo/addons.xml', timeout=30).read()
+          except Exception as exc:
+              print('no live repo yet (%s) - continuing' % exc); sys.exit(0)
+          live = {a.get('id'): a.get('version') for a in ET.fromstring(live_xml)}
+          published = live.get('plugin.video.alamo')
+          print('local %s / published %s' % (local, published))
+          if published and published == local:
+              print('::warning::version %s is already published - bump '
+                    'plugin.video.alamo/addon.xml or Kodi will not see an update'
+                    % local)
+          PY
+
       - name: Build repository
         run: python3 tools/build_repo.py
 
@@ -53,3 +76,31 @@ jobs:
             dist/plugin.video.alamo/*.zip
             dist/repository.alamo/*.zip
             dist/script.alamo.provider.example/*.zip
+
+      - name: Verify the published repository
+        run: |
+          sleep 45
+          python3 - <<'PY'
+          import time, urllib.request, xml.etree.ElementTree as ET
+          base = 'https://nick-kuhle.github.io/Alamo/'
+          want = ET.parse('plugin.video.alamo/addon.xml').getroot().get('version')
+          for attempt in range(10):
+              try:
+                  xml = urllib.request.urlopen(base + 'addons.xml', timeout=30).read()
+                  live = {a.get('id'): a.get('version') for a in ET.fromstring(xml)}
+                  if live.get('plugin.video.alamo') == want:
+                      for path in ('plugin.video.alamo/plugin.video.alamo-%s.zip' % want,
+                                   'repository.alamo/repository.alamo-%s.zip' % want,
+                                   'addons.xml.md5', ''):
+                          code = urllib.request.urlopen(base + path, timeout=30).getcode()
+                          print(code, base + path)
+                      print('published %s' % want)
+                      raise SystemExit(0)
+                  print('attempt %d: live=%s want=%s' % (attempt, live.get('plugin.video.alamo'), want))
+              except SystemExit:
+                  raise
+              except Exception as exc:
+                  print('attempt %d: %s' % (attempt, exc))
+              time.sleep(20)
+          raise SystemExit('published repository never caught up')
+          PY

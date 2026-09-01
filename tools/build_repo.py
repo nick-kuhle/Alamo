@@ -22,8 +22,17 @@ ROOT = os.path.normpath(os.path.join(HERE, '..'))
 DIST = os.path.join(ROOT, 'dist')
 
 REPO_ID = 'repository.alamo'
-REPO_VERSION = '1.0.0'
 REPO_URL = 'https://nick-kuhle.github.io/Alamo/'
+
+
+def addon_version(addon_id):
+    tree = ET.parse(os.path.join(ROOT, addon_id, 'addon.xml'))
+    return tree.getroot().get('version')
+
+
+# The repository add-on is versioned in lockstep with the plugin, so a release
+# always moves the plugin zip, the repository zip and addons.xml together.
+REPO_VERSION = addon_version('plugin.video.alamo')
 
 ADDONS = ['plugin.video.alamo', 'script.alamo.provider.example']
 EXCLUDE = re.compile(r'(__pycache__|\.pyc$|\.DS_Store|\.testprofile)')

@@ -96,6 +96,7 @@ Install `dist/plugin.video.alamo/plugin.video.alamo-1.0.0.zip` with
 ## Development
 
 ```bash
+./tools/release.sh 1.0.2 "What changed"   # bump, test, build, tag, push - CI publishes
 python3 tools/make_media.py     # regenerate every texture and icon
 python3 tools/build_skin.py     # regenerate the four window XMLs
 python3 tests/test_smoke.py     # 14 headless tests, Kodi stubbed out

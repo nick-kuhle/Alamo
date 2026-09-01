@@ -321,17 +321,45 @@ pushing `gh-pages` makes Kodi offer the update automatically.
 
 ### Shipping an update, in full
 
+One command does the lot:
+
 ```bash
-# 1. bump version in plugin.video.alamo/addon.xml  (e.g. 1.0.0 -> 1.0.1)
-# 2. add a line to changelog.txt
-python3 tests/test_smoke.py
-python3 tools/build_repo.py
-git commit -am "v1.0.1" && git push
-# 3. copy dist/* onto the gh-pages branch and push
+./tools/release.sh 1.0.2 "Fix the sources dialog"
 ```
 
-Kodi caches `addons.xml` for a while; **Add-ons → right-click the repo → Check
-for updates** forces it.
+It bumps `addon.xml`, appends to `changelog.txt`, regenerates the skin, runs the
+tests, rebuilds `dist/`, commits, tags `v1.0.2` and pushes. CI takes it from
+there: republishes `gh-pages`, cuts a GitHub Release with the zips attached, and
+then **verifies the live `addons.xml` actually reports the new version** before
+going green.
+
+**Everything moves together, by design:**
+
+| Artefact | Version | Kept in sync by |
+|---|---|---|
+| `plugin.video.alamo` zip | 1.0.2 | `addon.xml` (the source of truth) |
+| `repository.alamo` zip | 1.0.2 | `build_repo.py` reads the plugin's version |
+| `addons.xml` + `.md5` | 1.0.2 | rebuilt every run |
+| `gh-pages` | 1.0.2 | CI publishes on **every push to main**, not just tags |
+| GitHub Release | 1.0.2 | CI, on `v*` tags |
+
+CI also warns if you push without bumping the version — republishing different
+bytes under a version Kodi has already cached is the classic way to make an
+update silently not arrive.
+
+### Making Kodi actually notice an update
+
+Kodi caches repository metadata and only auto-checks periodically, so after a
+release:
+
+1. **Add-ons → right-click *The Alamo Repository* → Check for updates**
+   (this refreshes `addons.xml` — do this one first)
+2. **Add-ons → right-click *The Alamo* → Update**, or *Information → Update →*
+   pick the version
+3. Still stuck? **Settings → System → Add-ons → Manage dependencies** shows real
+   versions, and a Kodi restart clears the in-memory repo cache. As a last
+   resort, install the new zip directly from
+   `https://nick-kuhle.github.io/Alamo/plugin.video.alamo/`.
 
 ---
 

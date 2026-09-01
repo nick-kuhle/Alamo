@@ -5,3 +5,10 @@ v1.0.0
 - TMDB metadata with sqlite caching
 - Pluggable provider system with parallel scanning and ResolveURL support
 - Built-in M3U / JSON playlist provider for Sports
+
+v1.0.1
+- Fix: add-on settings dialog showed no options (invalid <level>4</level> in the
+  new settings schema); rewritten in Kodi's classic settings format with plain
+  English labels so it cannot depend on string localisation
+- New: "Enter / test TMDB API key..." button that validates the key against TMDB
+- New: first run and empty Movies/TV now offer the keyboard prompt directly
